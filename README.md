@@ -1,4 +1,4 @@
-# payments
+# Payments
 api for pet application.
-daily/monthly spends calculation and reports generation based on it 
+daily/monthly spends calculation and reports generation
 
