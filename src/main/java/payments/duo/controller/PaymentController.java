@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.Payment;
 import payments.duo.model.request.CreatePaymentCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
-import payments.duo.service.PaymentsService.PaymentService;
+import payments.duo.service.PaymentService;
 
 @RestController
 @RequestMapping("api/v1/payment")

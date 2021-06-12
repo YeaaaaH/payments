@@ -1,4 +1,4 @@
-package payments.duo.service.PaymentsService;
+package payments.duo.service;
 
 import org.springframework.stereotype.Service;
 import payments.duo.exception.CategoryNotFoundException;
