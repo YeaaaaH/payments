@@ -21,6 +21,8 @@ public class Payment {
     @Column(name="PAYMENT_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
+    private String description;
     private BigDecimal amount;
     private Date createdOn;
     @ManyToOne

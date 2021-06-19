@@ -37,6 +37,7 @@ public class PaymentService {
         payment.setAmount(command.getAmount());
         payment.setCreatedOn(command.getCreatedOn());
         payment.setCategory(category);
+        payment.setTitle(command.getTitle());
         return paymentRepository.save(payment);
     }
 
@@ -45,6 +46,7 @@ public class PaymentService {
                 .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + command.getId() + " hasn't been found"));
         validateAndUpdateCategory(payment, command);
         validateAndUpdateAmount(payment, command);
+        payment.setDescription(command.getDescription());
         return paymentRepository.save(payment);
     }
 
