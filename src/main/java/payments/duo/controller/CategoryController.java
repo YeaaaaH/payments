@@ -1,5 +1,6 @@
 package payments.duo.controller;
 
+import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/category")
 @CrossOrigin(origins = "http://localhost:3000")
+@Api(description="Operations related to categories, allowed only GET methods")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -22,7 +24,7 @@ public class CategoryController {
     }
 
     @GetMapping("{id}")
-    public Category findAllCategories(@PathVariable long id) {
+    public Category findCategoryById(@PathVariable long id) {
         return categoryService.findCategoryById(id);
     }
 
