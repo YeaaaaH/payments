@@ -2,6 +2,7 @@ package payments.duo.model;
 
 import lombok.Data;
 
+import payments.duo.model.auth.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,6 +26,9 @@ public class Payment {
     private String description;
     private BigDecimal amount;
     private Date createdOn;
+    @ManyToOne
+    @JoinColumn(name ="USER_ID")
+    private User user;
     @ManyToOne
     @JoinColumn(name ="CATEGORY_ID")
     private Category category;

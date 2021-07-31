@@ -9,5 +9,7 @@
     <include file="db/changelog/changeSet/001-payments-categories.xml"/>
     <include file="db/changelog/changeSet/002-categories-insert.xml"/>
     <include file="db/changelog/changeSet/003-payments-add-columns.xml"/>
+    <include file="db/changelog/changeSet/004-users-roles.xml"/>
+    <include file="db/changelog/changeSet/005-roles-insert.xml"/>
 
 </databaseChangeLog>
