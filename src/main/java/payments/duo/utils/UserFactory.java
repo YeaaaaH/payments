@@ -18,11 +18,11 @@ public final class UserFactory {
         return new JwtUser(
                 user.getUsername(),
                 user.getPassword(),
-                toGrantedAuthorities(user.getRoles())
+                getAuthoritiesFromRoles(user.getRoles())
         );
     }
 
-    public static List<GrantedAuthority> toGrantedAuthorities(List<Role> roles) {
+    public static List<GrantedAuthority> getAuthoritiesFromRoles(List<Role> roles) {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());

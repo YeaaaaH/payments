@@ -1,6 +1,5 @@
 package payments.duo.service;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -60,9 +59,4 @@ public class UserService implements UserDetailsService {
         return userRepository.findUserByUsername(userName)
                 .orElseThrow(() -> new UserNotFoundException("User with username: " + userName + " hadn't been found"));
     }
-//
-//    public User findUserById(long id) {
-//        return userRepository.findById(id)
-//                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " hadn't been found"));
-//    }
 }

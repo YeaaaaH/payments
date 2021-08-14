@@ -1,10 +1,8 @@
 package payments.duo.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,33 +13,29 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import payments.duo.security.filters.JwtAuthenticationFilter;
 import payments.duo.security.filters.JwtAuthorizationFilter;
+import payments.duo.security.jwt.JwtTokenProvider;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final String SIGNIN_ENDPOINT = "/auth/login";
-    private static final String SIGNUP_ENDPOINT = "/auth/signup";
+    public static final String SIGNIN_ENDPOINT = "/api/auth/signin";
+    public static final String SIGNUP_ENDPOINT = "/api/auth/signup";
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(authenticationProvider());
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          BCryptPasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManagerBean());
-        jwtAuthenticationFilter.setFilterProcessesUrl(SIGNIN_ENDPOINT);
-        http.csrf().disable();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers(SIGNIN_ENDPOINT, SIGNUP_ENDPOINT).permitAll();
-        http.authorizeRequests().antMatchers("/api/v1/**").hasAnyAuthority("ROLE_CLIENT", "ROLE_ADMIN");
-        http.authorizeRequests().anyRequest().authenticated();
-        http.addFilter(jwtAuthenticationFilter);
-        http.addFilterBefore(new JwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 
     @Bean
@@ -51,15 +45,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
+        return new JwtAuthorizationFilter();
     }
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .httpBasic().disable()
+                .csrf().disable();
+        http
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
+        http
+                .authorizeRequests().antMatchers(SIGNIN_ENDPOINT).permitAll()
+                .and()
+                .authorizeRequests().antMatchers(SIGNUP_ENDPOINT).permitAll()
+                .antMatchers("/api/v1/**").hasAnyAuthority("ROLE_CLIENT", "ROLE_ADMIN")
+                .anyRequest().authenticated().and();
+        http.addFilterBefore(new JwtAuthenticationFilter(authenticationManagerBean(), jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }
