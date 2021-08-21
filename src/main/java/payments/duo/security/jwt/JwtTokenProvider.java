@@ -9,8 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import payments.duo.model.auth.User;
-import payments.duo.utils.UserFactory;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -25,7 +23,6 @@ public class JwtTokenProvider {
     private long expireTime;
 
     public String createToken(Authentication authentication) {
-//        JwtUser jwtUser = UserFactory.toJwtUser((User) authentication.getPrincipal());
         JwtUser jwtUser = (JwtUser)authentication.getPrincipal();
 
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes());
