@@ -1,14 +1,14 @@
 package payments.duo.model.response;
 
 import lombok.Getter;
+import payments.duo.exception.ExceptionDetails;
+
+import java.util.List;
 
 @Getter
 public class ExceptionResponse {
-    private String code;
-    private String message;
-
-    public ExceptionResponse(String code, String message) {
-        this.code = code;
-        this.message = message;
+    private final List<ExceptionDetails> exceptions;
+    public ExceptionResponse(List<ExceptionDetails> exceptions) {
+        this.exceptions = exceptions;
     }
 }

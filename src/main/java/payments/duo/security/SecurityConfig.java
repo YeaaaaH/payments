@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import payments.duo.security.filters.JwtAuthenticationFilter;
 import payments.duo.security.filters.JwtAuthorizationFilter;
 import payments.duo.security.jwt.JwtTokenProvider;
@@ -25,12 +26,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CorsConfiguration corsConfiguration;
 
-    public SecurityConfig(UserDetailsService userDetailsService,
-                          BCryptPasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfig(UserDetailsService userDetailsService, BCryptPasswordEncoder passwordEncoder,
+                          JwtTokenProvider jwtTokenProvider, CorsConfiguration corsConfiguration) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.corsConfiguration = corsConfiguration;
     }
 
     @Override
@@ -53,7 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .httpBasic().disable()
-                .csrf().disable();
+                .csrf().disable()
+                .cors().configurationSource(request -> corsConfiguration);
         http
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
         http
@@ -62,7 +66,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers(SIGNUP_ENDPOINT).permitAll()
                 .antMatchers("/api/v1/**").hasAnyAuthority("ROLE_CLIENT", "ROLE_ADMIN")
                 .anyRequest().authenticated().and();
-        http.addFilterBefore(new JwtAuthenticationFilter(authenticationManagerBean(), jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(authenticationManagerBean(), jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }

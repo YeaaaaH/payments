@@ -3,7 +3,6 @@ package payments.duo.controller;
 import io.swagger.annotations.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,6 @@ import payments.duo.service.PaymentService;
 
 @RestController
 @RequestMapping("api/v1/payment")
-@CrossOrigin(origins = "http://localhost:3000")
 @Api(description="Operations related to payments")
 public class PaymentController {
 

@@ -1,7 +1,6 @@
 package payments.duo.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +10,9 @@ import payments.duo.model.request.auth.UserCommand;
 import payments.duo.service.UserService;
 import payments.duo.utils.UserFactory;
 
+import javax.validation.Valid;
+
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping(value = "api/auth")
 public class AuthController {
 
@@ -23,7 +23,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserCommand> registration(@RequestBody CreateUserCommand createUserCommand) {
+    public ResponseEntity<UserCommand> registration(@Valid @RequestBody CreateUserCommand createUserCommand) {
         UserCommand userCommand = UserFactory.toUserCommand(userService.registration(createUserCommand));
         return ResponseEntity.ok(userCommand);
     }

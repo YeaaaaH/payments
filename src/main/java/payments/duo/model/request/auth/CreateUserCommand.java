@@ -2,10 +2,16 @@ package payments.duo.model.request.auth;
 
 import lombok.Getter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.sql.Date;
+
+import static payments.duo.utils.Constants.VALID_PASSWORD_LENGTH_MESSAGE;
 
 @Getter
 public class CreateUserCommand extends UserCommand {
+    @NotBlank
+    @Size(min = 6, message = VALID_PASSWORD_LENGTH_MESSAGE)
     private String password;
 
     public CreateUserCommand(String username, String email, String firstName, String lastName,
