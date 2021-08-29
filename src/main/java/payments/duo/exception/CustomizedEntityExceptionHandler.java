@@ -19,11 +19,7 @@ public class CustomizedEntityExceptionHandler extends ResponseEntityExceptionHan
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex) {
-        List<ExceptionDetails> exceptions = List.of(
-                new ExceptionDetails(ex.getMessage())
-        );
-        ExceptionResponse exceptionResponse = new ExceptionResponse(exceptions);
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -40,28 +36,23 @@ public class CustomizedEntityExceptionHandler extends ResponseEntityExceptionHan
 
     @ExceptionHandler(PaymentNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handlePaymentNotFoundException(PaymentNotFoundException ex) {
-        List<ExceptionDetails> exceptions = List.of(
-                new ExceptionDetails(ex.getMessage())
-        );
-        ExceptionResponse exceptionResponse = new ExceptionResponse(exceptions);
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handleCategoryNotFoundException(CategoryNotFoundException ex) {
-        List<ExceptionDetails> exceptions = List.of(
-                new ExceptionDetails(ex.getMessage())
-        );
-        ExceptionResponse exceptionResponse = new ExceptionResponse(exceptions);
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
+    }
+
+    public static ExceptionResponse prepareExceptions(Exception exception) {
         List<ExceptionDetails> exceptions = List.of(
-                new ExceptionDetails(ex.getMessage())
+                new ExceptionDetails(exception.getMessage())
         );
-        ExceptionResponse exceptionResponse = new ExceptionResponse(exceptions);
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+        return new ExceptionResponse(exceptions);
     }
 }

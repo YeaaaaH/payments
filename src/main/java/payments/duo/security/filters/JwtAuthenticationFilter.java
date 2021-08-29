@@ -9,7 +9,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import payments.duo.security.jwt.JwtTokenProvider;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -17,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static payments.duo.exception.CustomizedEntityExceptionHandler.prepareExceptions;
 import static payments.duo.security.SecurityConfig.SIGNIN_ENDPOINT;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -45,5 +45,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         responseData.put("access_token", accessToken);
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), responseData);
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        new ObjectMapper().writeValue(response.getOutputStream(), prepareExceptions(failed));
     }
 }
