@@ -1,5 +1,7 @@
 package payments.duo.service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,6 +11,7 @@ import payments.duo.exception.UserNotFoundException;
 import payments.duo.model.auth.Role;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
+import payments.duo.model.request.auth.UserCommand;
 import payments.duo.repository.RoleRepository;
 import payments.duo.repository.UserRepository;
 import payments.duo.utils.UserFactory;
@@ -53,6 +56,12 @@ public class UserService implements UserDetailsService {
         user.setRoles(roles);
         user.setCreatedOn(new Date(System.currentTimeMillis()));
         return userRepository.save(user);
+    }
+
+    public UserCommand getUserFromAuth() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = findUserByUsername(authentication.getName());
+        return UserFactory.toUserCommand(user);
     }
 
     public User findUserByUsername(String userName) {

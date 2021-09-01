@@ -20,8 +20,8 @@ import payments.duo.security.jwt.JwtTokenProvider;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    public static final String SIGNIN_ENDPOINT = "/api/auth/signin";
-    public static final String SIGNUP_ENDPOINT = "/api/auth/signup";
+    public static final String SIGNIN_ENDPOINT = "/api/v1/auth/signin";
+    public static final String SIGNUP_ENDPOINT = "/api/v1/auth/signup";
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder passwordEncoder;

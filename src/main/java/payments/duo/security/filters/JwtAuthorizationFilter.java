@@ -9,31 +9,34 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import payments.duo.security.jwt.JwtTokenProvider;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static payments.duo.exception.CustomizedEntityExceptionHandler.prepareExceptions;
+import static payments.duo.utils.ResponseBuilder.buildResponse;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Autowired
-    JwtTokenProvider tokenProvider;
+    JwtTokenProvider jwtTokenProvider;
     @Autowired
     UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader(AUTHORIZATION);
-        if (Objects.nonNull(authHeader) && authHeader.startsWith("Bearer ")) {
-            DecodedJWT decodedJWT = tokenProvider.resolveToken(authHeader);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException {
+        try {
+            String authHeader = request.getHeader(AUTHORIZATION);
+            DecodedJWT decodedJWT = jwtTokenProvider.resolveToken(authHeader);
             String username = decodedJWT.getSubject();
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    username, null, tokenProvider.getAuthoritiesFromToken(decodedJWT));
+                    username, null, jwtTokenProvider.getAuthoritiesFromToken(decodedJWT));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            filterChain.doFilter(request, response);
+        } catch (Exception exception) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            buildResponse(response, prepareExceptions(exception));
         }
-        filterChain.doFilter(request, response);
     }
 }
