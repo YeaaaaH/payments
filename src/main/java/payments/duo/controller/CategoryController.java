@@ -9,6 +9,7 @@ import payments.duo.model.Category;
 import payments.duo.service.CategoryService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/category")
@@ -27,7 +28,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public List<Category> findAllCategories() {
-        return categoryService.findAllCategories();
+    public Map<String, List<Category>> findAllCategories() {
+        List<Category> categories = categoryService.findAllCategories();
+        return Map.of("categories", categories);
     }
 }

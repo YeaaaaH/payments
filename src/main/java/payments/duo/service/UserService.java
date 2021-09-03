@@ -64,8 +64,16 @@ public class UserService implements UserDetailsService {
         return UserFactory.toUserCommand(user);
     }
 
-    public User findUserByUsername(String userName) {
-        return userRepository.findUserByUsername(userName)
-                .orElseThrow(() -> new UserNotFoundException("User with username: " + userName + " hadn't been found"));
+    public User findUserByUsername(String username) {
+        return userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User with username: " + username + " hadn't been found"));
+    }
+
+    public boolean isUserExistsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean isUserExistsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

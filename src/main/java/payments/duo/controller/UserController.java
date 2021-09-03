@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.request.auth.UserCommand;
 import payments.duo.service.UserService;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -24,8 +23,6 @@ public class UserController {
     @GetMapping
     public Map<String, UserCommand> getUserFromAuth() {
         UserCommand userCommand = userService.getUserFromAuth();
-        Map<String, UserCommand> responseData = new HashMap<>();
-        responseData.put("user", userCommand);
-        return responseData;
+        return Map.of("user", userCommand);
     }
 }

@@ -13,7 +13,7 @@ import payments.duo.utils.UserFactory;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(value = "api/v1/auth")
+@RequestMapping(value = "api/auth")
 public class AuthController {
 
     private final UserService userService;

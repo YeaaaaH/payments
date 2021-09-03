@@ -1,6 +1,8 @@
 package payments.duo.model.request.auth;
 
 import lombok.Getter;
+import payments.duo.utils.validation.email.UniqueEmail;
+import payments.duo.utils.validation.username.UniqueUsername;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -14,12 +16,14 @@ import static payments.duo.utils.Constants.VALID_USERNAME_REGEX_PATTERN;
 
 @Getter
 public class UserCommand {
+    @UniqueUsername
     @NotBlank
     @Size(min = 4, max = 16, message = VALID_USERNAME_LENGTH_MESSAGE)
     @Pattern(regexp = VALID_USERNAME_REGEX_PATTERN, message = VALID_USERNAME_PATTERN_MESSAGE)
     private String username;
+    @UniqueEmail
     @NotBlank
-    @Email
+    @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
     private String email;
     private String firstName;
     private String lastName;
