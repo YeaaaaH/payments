@@ -1,6 +1,8 @@
 package payments.duo.model.request.auth;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import payments.duo.utils.validation.email.UniqueEmail;
 import payments.duo.utils.validation.username.UniqueUsername;
 
@@ -15,6 +17,8 @@ import static payments.duo.utils.Constants.VALID_USERNAME_PATTERN_MESSAGE;
 import static payments.duo.utils.Constants.VALID_USERNAME_REGEX_PATTERN;
 
 @Getter
+@Setter
+@NoArgsConstructor
 public class UserCommand {
     @UniqueUsername
     @NotBlank
