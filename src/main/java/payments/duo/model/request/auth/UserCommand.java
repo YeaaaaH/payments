@@ -20,6 +20,7 @@ import static payments.duo.utils.Constants.VALID_USERNAME_REGEX_PATTERN;
 @Setter
 @NoArgsConstructor
 public class UserCommand {
+    Long userId;
     @UniqueUsername
     @NotBlank
     @Size(min = 4, max = 16, message = VALID_USERNAME_LENGTH_MESSAGE)
@@ -34,7 +35,8 @@ public class UserCommand {
     private Date createdOn;
     private Date updatedOn;
 
-    public UserCommand(String username, String email, String firstName, String lastName, Date createdOn, Date updatedOn) {
+    public UserCommand(Long userId, String username, String email, String firstName, String lastName, Date createdOn, Date updatedOn) {
+        this.userId = userId;
         this.username = username;
         this.email = email;
         this.firstName = firstName;

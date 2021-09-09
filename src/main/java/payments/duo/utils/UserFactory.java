@@ -30,6 +30,7 @@ public final class UserFactory {
 
     public static UserCommand toUserCommand(User user) {
         return new UserCommand(
+                user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getFirstName(),

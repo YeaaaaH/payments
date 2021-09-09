@@ -16,6 +16,8 @@ import payments.duo.model.request.CreatePaymentCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
 import payments.duo.service.PaymentService;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("api/v1/payment")
 @Api(description="Operations related to payments")
@@ -33,7 +35,7 @@ public class PaymentController {
     }
 
     @PostMapping
-    public Payment savePayment(@RequestBody CreatePaymentCommand command) {
+    public Payment savePayment(@Valid @RequestBody CreatePaymentCommand command) {
         return paymentService.savePayment(command);
     }
 

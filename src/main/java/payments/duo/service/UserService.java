@@ -69,6 +69,11 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UserNotFoundException("User with username: " + username + " hadn't been found"));
     }
 
+    public User findUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " hadn't been found"));
+    }
+
     public boolean isUserExistsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }

@@ -18,9 +18,9 @@ public class CreateUserCommand extends UserCommand {
     @Size(min = 6, message = VALID_PASSWORD_LENGTH_MESSAGE)
     private String password;
 
-    public CreateUserCommand(String username, String email, String firstName, String lastName,
+    public CreateUserCommand(Long userId, String username, String email, String firstName, String lastName,
                              Date createdOn, Date updatedOn, String password) {
-        super(username, email, firstName, lastName, createdOn, updatedOn);
+        super(userId, username, email, firstName, lastName, createdOn, updatedOn);
         this.password = password;
     }
 }

@@ -63,6 +63,16 @@ class UserServiceSpec extends Specification {
             1 * userRepository.findUserByUsername("username") >> optUser
     }
 
+    def "should find user by id"() {
+        given:
+            User user = createValidUser()
+            Optional<User> optUser = Optional.of(user)
+        when:
+            service.findUserById(1)
+        then:
+            1 * userRepository.findById(1) >> optUser
+    }
+
     def "should check is user exists by username"() {
         given:
             userRepository.existsByEmail("username") >> a
