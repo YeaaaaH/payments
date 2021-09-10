@@ -5,6 +5,7 @@ import lombok.Data;
 import payments.duo.model.auth.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,7 +27,7 @@ public class Payment {
     private String description;
     private BigDecimal amount;
     private Date createdOn;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="USER_ID")
     private User user;
     @ManyToOne

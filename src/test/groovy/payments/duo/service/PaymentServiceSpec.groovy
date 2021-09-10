@@ -4,6 +4,7 @@ import payments.duo.model.Category
 import payments.duo.model.Payment
 import payments.duo.model.auth.User
 import payments.duo.model.request.CreatePaymentCommand
+import payments.duo.model.response.PaymentResponse
 import payments.duo.repository.CategoryRepository
 import payments.duo.repository.PaymentRepository
 import spock.lang.Specification
@@ -48,6 +49,36 @@ class PaymentServiceSpec extends Specification {
             1 * paymentRepository.findById(1) >> optPayment
     }
 
+    def "should return payments response monthly"() {
+        given:
+            List<Payment> payments = List.of(createValidPayment())
+            PaymentResponse paymentResponse = createPaymentResponse()
+        when:
+            List<PaymentResponse> response = service.findAllByUserForYearAndMonth(1, 2021 , 9)
+        then:
+            1 * paymentRepository.findAllByUserForYearAndMonth(1, 2021, 9) >> payments
+            !response.empty
+            response.get(0).title == paymentResponse.title
+            response.get(0).categoryName == paymentResponse.categoryName
+            response.get(0).description == paymentResponse.description
+            response.get(0).amount == paymentResponse.amount
+    }
+
+    def "should return payments response yearly"() {
+        given:
+            List<Payment> payments = List.of(createValidPayment(), createValidPayment())
+            PaymentResponse paymentResponse = createPaymentResponse()
+        when:
+            List<PaymentResponse> response = service.findAllByUserForYear(1, 2021)
+        then:
+            1 * paymentRepository.findAllByUserForYear(1, 2021) >> payments
+            response.size() == 2
+            response.get(1).title == paymentResponse.title
+            response.get(1).categoryName == paymentResponse.categoryName
+            response.get(1).description == paymentResponse.description
+            response.get(1).amount == paymentResponse.amount
+    }
+
     private CreatePaymentCommand createValidCommand() {
         CreatePaymentCommand command = new CreatePaymentCommand()
         command.amount = 100
@@ -56,7 +87,7 @@ class PaymentServiceSpec extends Specification {
         command.description = 'description'
         command.userId = 1
         command.createdOn = new Date(System.currentTimeMillis())
-        return command
+        command
     }
 
     private Payment createValidPayment() {
@@ -74,6 +105,16 @@ class PaymentServiceSpec extends Specification {
                 username: 'username'
         )
         payment.user = user
-        return payment
+        payment
+    }
+
+    private PaymentResponse createPaymentResponse() {
+        PaymentResponse paymentResponse = new PaymentResponse(
+                title: 'title',
+                description: 'description',
+                categoryName: 'category',
+                amount: 100,
+        )
+        paymentResponse
     }
 }

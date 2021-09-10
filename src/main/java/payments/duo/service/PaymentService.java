@@ -8,10 +8,13 @@ import payments.duo.model.Payment;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.CreatePaymentCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
+import payments.duo.model.response.PaymentResponse;
 import payments.duo.repository.CategoryRepository;
 import payments.duo.repository.PaymentRepository;
 
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -59,5 +62,25 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + id + " hasn't been found"));
         paymentRepository.delete(payment);
+    }
+
+    public List<PaymentResponse> findAllByUserForYear(Long userId, int year) {
+        List<Payment> payments = paymentRepository.findAllByUserForYear(userId, year);
+        return payments.stream().map(this::setPaymentResponse).collect(Collectors.toList());
+    }
+
+    public List<PaymentResponse> findAllByUserForYearAndMonth(Long userId, int year, int month) {
+        List<Payment> payments = paymentRepository.findAllByUserForYearAndMonth(userId, year, month);
+        return payments.stream().map(this::setPaymentResponse).collect(Collectors.toList());
+    }
+
+    private PaymentResponse setPaymentResponse(Payment payment) {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setTitle(payment.getTitle());
+        paymentResponse.setDescription(payment.getDescription());
+        paymentResponse.setAmount(payment.getAmount());
+        paymentResponse.setCategoryName(payment.getCategory().getName());
+        paymentResponse.setCreatedOn(payment.getCreatedOn());
+        return paymentResponse;
     }
 }

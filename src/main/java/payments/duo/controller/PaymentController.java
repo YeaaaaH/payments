@@ -10,13 +10,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.Payment;
 import payments.duo.model.request.CreatePaymentCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
+import payments.duo.model.response.PaymentResponse;
 import payments.duo.service.PaymentService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/payment")
@@ -48,5 +51,15 @@ public class PaymentController {
     public ResponseEntity<String> deletePaymentById(@PathVariable long id) {
         paymentService.deletePaymentById(id);
         return new ResponseEntity<>("Payment with id:" + id + " deleted", HttpStatus.OK);
+    }
+
+    @GetMapping("/yearly")
+    public List<PaymentResponse> findAllByUserForYearAndMonth(@RequestParam Long userId, @RequestParam int year) {
+        return paymentService.findAllByUserForYear(userId, year);
+    }
+
+    @GetMapping("/monthly")
+    public List<PaymentResponse> findAllByUserForYearAndMonth(@RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
+        return paymentService.findAllByUserForYearAndMonth(userId, year, month);
     }
 }
