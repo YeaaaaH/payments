@@ -8,11 +8,15 @@ import payments.duo.model.Payment;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.CreatePaymentCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
+import payments.duo.model.response.PaymentReportResponse;
+import payments.duo.model.response.PaymentReportResponseParameters;
 import payments.duo.model.response.PaymentResponse;
 import payments.duo.repository.CategoryRepository;
 import payments.duo.repository.PaymentRepository;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +39,7 @@ public class PaymentService {
                 .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + id + " hasn't been found"));
     }
 
-    public Payment savePayment(CreatePaymentCommand command) {
+    public PaymentResponse savePayment(CreatePaymentCommand command) {
         Payment payment = new Payment();
         Category category = categoryRepository.findById(command.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + command.getCategoryId() + " hasn't been found"));
@@ -46,16 +50,16 @@ public class PaymentService {
         payment.setDescription(command.getDescription());
         User user = userService.findUserById(command.getUserId());
         payment.setUser(user);
-        return paymentRepository.save(payment);
+        return setPaymentResponse(paymentRepository.save(payment));
     }
 
-    public Payment updatePayment(UpdatePaymentCommand command) {
+    public PaymentResponse updatePayment(UpdatePaymentCommand command) {
         Payment payment = paymentRepository.findById(command.getId())
                 .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + command.getId() + " hasn't been found"));
         payment.setAmount(command.getAmount());
         payment.setDescription(command.getDescription());
         payment.setTitle(command.getTitle());
-        return paymentRepository.save(payment);
+        return setPaymentResponse(paymentRepository.save(payment));
     }
 
     public void deletePaymentById(Long id) {
@@ -74,6 +78,16 @@ public class PaymentService {
         return payments.stream().map(this::setPaymentResponse).collect(Collectors.toList());
     }
 
+    public PaymentReportResponse calculateYearlyByUserAndCategory(Long userId, int year) {
+        List<PaymentReportResponseParameters> reportResponses = paymentRepository.calculateYearlyByUserAndCategory(userId, year);
+        return getPaymentReportResponse(reportResponses);
+    }
+
+    public PaymentReportResponse calculateMonthlyByUserAndCategory(Long userId, int year, int month) {
+        List<PaymentReportResponseParameters> reportResponses = paymentRepository.calculateMonthlyByUserAndCategory(userId, year, month);
+        return getPaymentReportResponse(reportResponses);
+    }
+
     private PaymentResponse setPaymentResponse(Payment payment) {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setTitle(payment.getTitle());
@@ -82,5 +96,15 @@ public class PaymentService {
         paymentResponse.setCategoryName(payment.getCategory().getName());
         paymentResponse.setCreatedOn(payment.getCreatedOn());
         return paymentResponse;
+    }
+
+    public static PaymentReportResponse getPaymentReportResponse(List<PaymentReportResponseParameters> reportResponses) {
+        List<String> categories = new ArrayList<>();
+        List<BigDecimal> amounts = new ArrayList<>();
+        reportResponses.forEach(parameter -> {
+            categories.add(parameter.getCategory());
+            amounts.add(parameter.getAmount());
+        });
+        return new PaymentReportResponse(categories, amounts);
     }
 }

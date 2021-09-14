@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.Payment;
 import payments.duo.model.request.CreatePaymentCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
+import payments.duo.model.response.PaymentReportResponse;
 import payments.duo.model.response.PaymentResponse;
 import payments.duo.service.PaymentService;
 
@@ -38,12 +39,12 @@ public class PaymentController {
     }
 
     @PostMapping
-    public Payment savePayment(@Valid @RequestBody CreatePaymentCommand command) {
+    public PaymentResponse savePayment(@Valid @RequestBody CreatePaymentCommand command) {
         return paymentService.savePayment(command);
     }
 
     @PutMapping
-    public Payment updatePayment(@RequestBody UpdatePaymentCommand command) {
+    public PaymentResponse updatePayment(@RequestBody UpdatePaymentCommand command) {
         return paymentService.updatePayment(command);
     }
 
@@ -53,13 +54,23 @@ public class PaymentController {
         return new ResponseEntity<>("Payment with id:" + id + " deleted", HttpStatus.OK);
     }
 
-    @GetMapping("/yearly")
-    public List<PaymentResponse> findAllByUserForYearAndMonth(@RequestParam Long userId, @RequestParam int year) {
+    @GetMapping("/list/yearly")
+    public List<PaymentResponse> findAllByUserForYear(@RequestParam Long userId, @RequestParam int year) {
         return paymentService.findAllByUserForYear(userId, year);
     }
 
-    @GetMapping("/monthly")
+    @GetMapping("/list/monthly")
     public List<PaymentResponse> findAllByUserForYearAndMonth(@RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
         return paymentService.findAllByUserForYearAndMonth(userId, year, month);
+    }
+
+    @GetMapping("/report/yearly")
+    public PaymentReportResponse calculateYearlyByUserAndCategory(@RequestParam Long userId, @RequestParam int year) {
+        return paymentService.calculateYearlyByUserAndCategory(userId, year);
+    }
+
+    @GetMapping("/report/monthly")
+    public PaymentReportResponse calculateMonthlyByUserAndCategory(@RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
+        return paymentService.calculateMonthlyByUserAndCategory(userId, year, month);
     }
 }

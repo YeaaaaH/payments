@@ -4,12 +4,16 @@ import payments.duo.model.Category
 import payments.duo.model.Payment
 import payments.duo.model.auth.User
 import payments.duo.model.request.CreatePaymentCommand
+import payments.duo.model.response.PaymentReportResponse
+import payments.duo.model.response.PaymentReportResponseParameters
 import payments.duo.model.response.PaymentResponse
 import payments.duo.repository.CategoryRepository
 import payments.duo.repository.PaymentRepository
 import spock.lang.Specification
 
 import java.sql.Date
+
+import static payments.duo.service.PaymentService.getPaymentReportResponse
 
 class PaymentServiceSpec extends Specification {
 
@@ -28,6 +32,7 @@ class PaymentServiceSpec extends Specification {
     def "should save valid user"() {
         given:
             CreatePaymentCommand command = createValidCommand()
+            Payment payment = createValidPayment()
         and:
             Optional<Category> optCategory = Optional.of(new Category(name: 'category'))
             User user = new User(id: 1, username: 'username')
@@ -36,7 +41,7 @@ class PaymentServiceSpec extends Specification {
         then:
             1 * categoryRepository.findById(_) >> optCategory
             1 * userService.findUserById(_) >> user
-            1 * paymentRepository.save(_)
+            1 * paymentRepository.save(_) >> payment
     }
 
     def "should payment by id"() {
@@ -79,6 +84,34 @@ class PaymentServiceSpec extends Specification {
             response.get(1).amount == paymentResponse.amount
     }
 
+    def "should return payments report response yearly"() {
+        given:
+            List<PaymentReportResponseParameters> params = List.of(createPaymentReportParams(), createPaymentReportParams())
+            PaymentReportResponse reportResponse = getPaymentReportResponse(params)
+        when:
+            PaymentReportResponse response = service.calculateYearlyByUserAndCategory(1, 2021)
+        then:
+            1 * paymentRepository.calculateYearlyByUserAndCategory(1, 2021) >> params
+            response.categories.size() == 2
+            response.totals.size() == 2
+            response.categories[1] == reportResponse.categories[1]
+            response.totals[1] == reportResponse.totals[1]
+    }
+
+    def "should return payments report response monthly"() {
+        given:
+            List<PaymentReportResponseParameters> params = List.of(createPaymentReportParams())
+            PaymentReportResponse reportResponse = getPaymentReportResponse(params)
+        when:
+            PaymentReportResponse response = service.calculateMonthlyByUserAndCategory(1, 2021 , 9)
+        then:
+            1 * paymentRepository.calculateMonthlyByUserAndCategory(1, 2021, 9) >> params
+            !response.categories.empty
+            !response.totals.empty
+            response.categories[0] == reportResponse.categories[0]
+            response.totals[0] == reportResponse.totals[0]
+    }
+
     private CreatePaymentCommand createValidCommand() {
         CreatePaymentCommand command = new CreatePaymentCommand()
         command.amount = 100
@@ -116,5 +149,13 @@ class PaymentServiceSpec extends Specification {
                 amount: 100,
         )
         paymentResponse
+    }
+
+    private PaymentReportResponseParameters createPaymentReportParams() {
+        PaymentReportResponseParameters parameters = new PaymentReportResponseParameters(
+                category: 'category',
+                amount: 1000
+        )
+        parameters
     }
 }
