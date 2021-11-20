@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import payments.duo.exception.UserNotFoundException;
 import payments.duo.model.auth.Role;
 import payments.duo.model.auth.User;
@@ -16,7 +17,6 @@ import payments.duo.repository.RoleRepository;
 import payments.duo.repository.UserRepository;
 import payments.duo.utils.UserFactory;
 
-import javax.transaction.Transactional;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;

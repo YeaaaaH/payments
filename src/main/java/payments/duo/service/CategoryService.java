@@ -1,11 +1,11 @@
 package payments.duo.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import payments.duo.exception.CategoryNotFoundException;
 import payments.duo.model.Category;
 import payments.duo.repository.CategoryRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service

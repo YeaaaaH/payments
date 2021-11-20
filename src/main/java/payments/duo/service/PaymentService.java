@@ -1,6 +1,7 @@
 package payments.duo.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import payments.duo.exception.CategoryNotFoundException;
 import payments.duo.exception.PaymentNotFoundException;
 import payments.duo.model.Category;
@@ -14,7 +15,6 @@ import payments.duo.model.response.PaymentResponse;
 import payments.duo.repository.CategoryRepository;
 import payments.duo.repository.PaymentRepository;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +40,7 @@ public class PaymentService {
     }
 
     public PaymentResponse savePayment(CreatePaymentCommand command) {
-        Payment payment = new Payment();
-        Category category = categoryRepository.findById(command.getCategoryId())
-                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + command.getCategoryId() + " hasn't been found"));
-        payment.setAmount(command.getAmount());
-        payment.setCreatedOn(command.getCreatedOn());
-        payment.setCategory(category);
-        payment.setTitle(command.getTitle());
-        payment.setDescription(command.getDescription());
-        User user = userService.findUserById(command.getUserId());
-        payment.setUser(user);
+        Payment payment = preparePaymentToSave(command);
         return setPaymentResponse(paymentRepository.save(payment));
     }
 
@@ -66,6 +57,14 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + id + " hasn't been found"));
         paymentRepository.delete(payment);
+    }
+
+    public void saveAllPayments(List<CreatePaymentCommand> commandsList) {
+        List<Payment> paymentsList = new ArrayList<>();
+        commandsList.forEach(command -> {
+            paymentsList.add(preparePaymentToSave(command));
+        });
+        paymentRepository.saveAll(paymentsList);
     }
 
     public List<PaymentResponse> findAllByUserForYear(Long userId, int year) {
@@ -106,5 +105,19 @@ public class PaymentService {
             amounts.add(parameter.getAmount());
         });
         return new PaymentReportResponse(categories, amounts);
+    }
+
+    private Payment preparePaymentToSave(CreatePaymentCommand command) {
+        Payment payment = new Payment();
+        Category category = categoryRepository.findById(command.getCategoryId())
+                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + command.getCategoryId() + " hasn't been found"));
+        payment.setAmount(command.getAmount());
+        payment.setCreatedOn(command.getCreatedOn());
+        payment.setCategory(category);
+        payment.setTitle(command.getTitle());
+        payment.setDescription(command.getDescription());
+        User user = userService.findUserById(command.getUserId());
+        payment.setUser(user);
+        return payment;
     }
 }

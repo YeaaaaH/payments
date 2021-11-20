@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.Payment;
 import payments.duo.model.request.CreatePaymentCommand;
+import payments.duo.model.request.CreatePaymentsListCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
 import payments.duo.model.response.PaymentReportResponse;
 import payments.duo.model.response.PaymentResponse;
@@ -41,6 +42,12 @@ public class PaymentController {
     @PostMapping
     public PaymentResponse savePayment(@Valid @RequestBody CreatePaymentCommand command) {
         return paymentService.savePayment(command);
+    }
+
+    @PostMapping("saveAll")
+    public ResponseEntity<String> saveAllPayments(@Valid @RequestBody CreatePaymentsListCommand command) {
+        paymentService.saveAllPayments(command.getPaymentCommands());
+        return new ResponseEntity<>("Batch save processed.", HttpStatus.OK);
     }
 
     @PutMapping

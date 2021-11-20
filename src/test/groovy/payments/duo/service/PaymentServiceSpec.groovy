@@ -4,6 +4,7 @@ import payments.duo.model.Category
 import payments.duo.model.Payment
 import payments.duo.model.auth.User
 import payments.duo.model.request.CreatePaymentCommand
+import payments.duo.model.request.CreatePaymentsListCommand
 import payments.duo.model.response.PaymentReportResponse
 import payments.duo.model.response.PaymentReportResponseParameters
 import payments.duo.model.response.PaymentResponse
@@ -29,7 +30,7 @@ class PaymentServiceSpec extends Specification {
         service = new PaymentService(userService, paymentRepository, categoryRepository)
     }
 
-    def "should save valid user"() {
+    def "should save valid payment"() {
         given:
             CreatePaymentCommand command = createValidCommand()
             Payment payment = createValidPayment()
@@ -44,7 +45,25 @@ class PaymentServiceSpec extends Specification {
             1 * paymentRepository.save(_) >> payment
     }
 
-    def "should payment by id"() {
+    def "should save batch of payments"() {
+        given:
+            CreatePaymentCommand command1 = createValidCommand()
+            CreatePaymentCommand command2 = createValidCommand()
+            CreatePaymentsListCommand commandsList = new CreatePaymentsListCommand(
+                    paymentCommands: new ArrayList<CreatePaymentCommand>([command1, command2])
+            )
+        and:
+            Optional<Category> optCategory = Optional.of(new Category(name: 'category'))
+            User user = new User(id: 1, username: 'username')
+        when:
+            service.saveAllPayments(commandsList.paymentCommands)
+        then:
+            2 * categoryRepository.findById(_) >> optCategory
+            2 * userService.findUserById(_) >> user
+            1 * paymentRepository.saveAll(_ as List<Payment>)
+    }
+
+    def "should find payment by id"() {
         given:
             Payment payment = createValidPayment()
             Optional<Payment> optPayment = Optional.of(payment)
