@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
-
+//TODO refactor from two lists into map
 @Getter
 @Setter
 @NoArgsConstructor

@@ -30,6 +30,7 @@ public class CategoryController {
     @GetMapping
     public Map<String, List<Category>> findAllCategories() {
         List<Category> categories = categoryService.findAllCategories();
+        //TODO add custom response
         return Map.of("categories", categories);
     }
 }

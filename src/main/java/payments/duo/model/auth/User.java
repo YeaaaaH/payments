@@ -14,7 +14,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.sql.Date;
 import java.util.List;
-
+//TODO add constrain for username uniqueness in DB
 @Entity
 @Table(name = "users")
 @Data

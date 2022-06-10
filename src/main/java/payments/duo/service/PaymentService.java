@@ -2,7 +2,6 @@ package payments.duo.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import payments.duo.exception.CategoryNotFoundException;
 import payments.duo.exception.PaymentNotFoundException;
 import payments.duo.model.Category;
 import payments.duo.model.Payment;
@@ -12,7 +11,6 @@ import payments.duo.model.request.UpdatePaymentCommand;
 import payments.duo.model.response.PaymentReportResponse;
 import payments.duo.model.response.PaymentReportResponseParameters;
 import payments.duo.model.response.PaymentResponse;
-import payments.duo.repository.CategoryRepository;
 import payments.duo.repository.PaymentRepository;
 
 import java.math.BigDecimal;
@@ -26,12 +24,12 @@ public class PaymentService {
 
     private final UserService userService;
     private final PaymentRepository paymentRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public PaymentService(UserService userService, PaymentRepository paymentRepository, CategoryRepository categoryRepository) {
+    public PaymentService(UserService userService, PaymentRepository paymentRepository, CategoryService categoryService) {
         this.userService = userService;
         this.paymentRepository = paymentRepository;
-        this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
     }
 
     public Payment findPaymentById(Long id) {
@@ -106,18 +104,17 @@ public class PaymentService {
         });
         return new PaymentReportResponse(categories, amounts);
     }
-
+    //TODO refactor with service
     private Payment preparePaymentToSave(CreatePaymentCommand command) {
         Payment payment = new Payment();
-        Category category = categoryRepository.findById(command.getCategoryId())
-                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + command.getCategoryId() + " hasn't been found"));
+        Category category = categoryService.findCategoryById(command.getCategoryId());
+        User user = userService.findUserById(command.getUserId());
+        payment.setUser(user);
         payment.setAmount(command.getAmount());
         payment.setCreatedOn(command.getCreatedOn());
         payment.setCategory(category);
         payment.setTitle(command.getTitle());
         payment.setDescription(command.getDescription());
-        User user = userService.findUserById(command.getUserId());
-        payment.setUser(user);
         return payment;
     }
 }

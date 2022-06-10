@@ -23,6 +23,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String SIGNIN_ENDPOINT = "/api/auth/signin";
     public static final String SIGNUP_ENDPOINT = "/api/auth/signup";
 
+    private static final String[] AUTH_WHITELIST = {
+            // -- Swagger UI v2
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            // Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            // Auth end points
+            SIGNIN_ENDPOINT,
+            SIGNUP_ENDPOINT
+    };
+
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -61,9 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
         http
-                .authorizeRequests().antMatchers(SIGNIN_ENDPOINT).permitAll()
-                .and()
-                .authorizeRequests().antMatchers(SIGNUP_ENDPOINT).permitAll()
+                .authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll()
                 .antMatchers("/api/v1/**").hasAnyAuthority("ROLE_CLIENT", "ROLE_ADMIN")
                 .anyRequest().authenticated().and();
         http.addFilterBefore(new JwtAuthenticationFilter(authenticationManagerBean(), jwtTokenProvider),

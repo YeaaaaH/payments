@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 @Configuration
 @EnableSwagger2
+// TODO migrate to swagger v3
 public class SwaggerConfig {
 
     @Bean

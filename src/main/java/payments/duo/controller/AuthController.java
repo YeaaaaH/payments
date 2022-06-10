@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
 import payments.duo.model.request.auth.UserCommand;
 import payments.duo.service.UserService;
@@ -24,7 +25,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserCommand> registration(@Valid @RequestBody CreateUserCommand createUserCommand) {
-        UserCommand userCommand = UserFactory.toUserCommand(userService.registration(createUserCommand));
+        User user = userService.registration(createUserCommand);
+        UserCommand userCommand = UserFactory.toUserCommand(user);
         return ResponseEntity.ok(userCommand);
     }
 }

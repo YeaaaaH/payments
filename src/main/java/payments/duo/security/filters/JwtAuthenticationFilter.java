@@ -29,8 +29,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    // TODO investigate body input credentials
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {// TODO investigate change for json username password input
         String username = super.obtainUsername(request);
         String password = super.obtainPassword(request);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);

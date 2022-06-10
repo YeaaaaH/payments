@@ -25,4 +25,5 @@ public class UserController {
         UserCommand userCommand = userService.getUserFromAuth();
         return Map.of("user", userCommand);
     }
+    //TODO add user update
 }

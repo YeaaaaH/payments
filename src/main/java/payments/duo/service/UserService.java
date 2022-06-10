@@ -18,7 +18,6 @@ import payments.duo.repository.UserRepository;
 import payments.duo.utils.UserFactory;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,7 +27,6 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -51,9 +49,7 @@ public class UserService implements UserDetailsService {
         user.setFirstName(createUserCommand.getFirstName());
         user.setLastName(createUserCommand.getLastName());
         Role role = roleRepository.findByName("ROLE_CLIENT");
-        List<Role> roles = new ArrayList<>();
-        roles.add(role);
-        user.setRoles(roles);
+        user.setRoles(List.of(role));
         user.setCreatedOn(new Date(System.currentTimeMillis()));
         return userRepository.save(user);
     }

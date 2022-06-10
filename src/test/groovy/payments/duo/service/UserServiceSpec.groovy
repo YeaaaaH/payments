@@ -33,7 +33,7 @@ class UserServiceSpec extends Specification {
         then:
             1 * passwordEncoder.encode(_)
             1 * userRepository.save(_)
-            1 * roleRepository.findByName(_)
+            1 * roleRepository.findByName(_) >> new Role(name: "role")
     }
 
     def "should load User Details by username"() {

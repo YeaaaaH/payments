@@ -27,11 +27,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Autowired
     UserDetailsService userDetailsService;
 
+    // TODO implement proper request filtering for swagger
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        if (Objects.equals(request.getServletPath(), SIGNUP_ENDPOINT)) {
+        if (Objects.equals(request.getServletPath(), SIGNUP_ENDPOINT) ||
+                request.getServletPath().contains("swagger") ||
+                request.getServletPath().contains("v2/api-docs")) {
             filterChain.doFilter(request, response);
-        } else {
+        }
+        else {
             try {
                 String authHeader = request.getHeader(AUTHORIZATION);
                 DecodedJWT decodedJWT = jwtTokenProvider.resolveToken(authHeader);

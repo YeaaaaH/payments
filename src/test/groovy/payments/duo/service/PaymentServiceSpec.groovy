@@ -8,7 +8,6 @@ import payments.duo.model.request.CreatePaymentsListCommand
 import payments.duo.model.response.PaymentReportResponse
 import payments.duo.model.response.PaymentReportResponseParameters
 import payments.duo.model.response.PaymentResponse
-import payments.duo.repository.CategoryRepository
 import payments.duo.repository.PaymentRepository
 import spock.lang.Specification
 
@@ -19,15 +18,15 @@ import static payments.duo.service.PaymentService.getPaymentReportResponse
 class PaymentServiceSpec extends Specification {
 
     UserService userService
-    CategoryRepository categoryRepository
+    CategoryService categoryService
     PaymentRepository paymentRepository
-    PaymentService service = new PaymentService(userService, paymentRepository, categoryRepository)
+    PaymentService service = new PaymentService(userService, paymentRepository, categoryService)
 
     def setup() {
         userService = Mock(UserService)
-        categoryRepository = Mock(CategoryRepository)
+        categoryService = Mock(CategoryService)
         paymentRepository = Mock(PaymentRepository)
-        service = new PaymentService(userService, paymentRepository, categoryRepository)
+        service = new PaymentService(userService, paymentRepository, categoryService)
     }
 
     def "should save valid payment"() {
@@ -35,12 +34,12 @@ class PaymentServiceSpec extends Specification {
             CreatePaymentCommand command = createValidCommand()
             Payment payment = createValidPayment()
         and:
-            Optional<Category> optCategory = Optional.of(new Category(name: 'category'))
+            Category optCategory = new Category(name: 'category')
             User user = new User(id: 1, username: 'username')
         when:
             service.savePayment(command)
         then:
-            1 * categoryRepository.findById(_) >> optCategory
+            1 * categoryService.findCategoryById(_) >> optCategory
             1 * userService.findUserById(_) >> user
             1 * paymentRepository.save(_) >> payment
     }
@@ -53,12 +52,12 @@ class PaymentServiceSpec extends Specification {
                     paymentCommands: new ArrayList<CreatePaymentCommand>([command1, command2])
             )
         and:
-            Optional<Category> optCategory = Optional.of(new Category(name: 'category'))
+            Category optCategory = new Category(name: 'category')
             User user = new User(id: 1, username: 'username')
         when:
             service.saveAllPayments(commandsList.paymentCommands)
         then:
-            2 * categoryRepository.findById(_) >> optCategory
+            2 * categoryService.findCategoryById(_) >> optCategory
             2 * userService.findUserById(_) >> user
             1 * paymentRepository.saveAll(_ as List<Payment>)
     }
