@@ -104,7 +104,7 @@ public class PaymentService {
         });
         return new PaymentReportResponse(categories, amounts);
     }
-    //TODO refactor with service
+
     private Payment preparePaymentToSave(CreatePaymentCommand command) {
         Payment payment = new Payment();
         Category category = categoryService.findCategoryById(command.getCategoryId());

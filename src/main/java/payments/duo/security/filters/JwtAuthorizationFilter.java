@@ -28,6 +28,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     UserDetailsService userDetailsService;
 
     // TODO implement proper request filtering for swagger
+    // TODO resolve issue of unexisting user in token
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         if (Objects.equals(request.getServletPath(), SIGNUP_ENDPOINT) ||

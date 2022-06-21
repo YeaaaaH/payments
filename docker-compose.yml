@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5433:5432
+  api:
+    build: .
+    container_name: api
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/postgres
+      USERNAME: postgres
+      PASSWORD: password
+      SECRET: secret
+      EXPIRE_TIME: 600000
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
