@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import payments.duo.model.Category;
 
-import java.math.BigDecimal;
-import java.util.Map;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentReportResponse {
-    Map<String, BigDecimal> report;
+public class FindAllCategoriesResponse {
+    List<Category> categories;
 }

@@ -1,11 +1,13 @@
 package payments.duo.security.filters;
 
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
+import payments.duo.exception.JwtTokenException;
 import payments.duo.security.jwt.JwtTokenProvider;
 
 import javax.servlet.FilterChain;
@@ -18,6 +20,7 @@ import java.util.Objects;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static payments.duo.exception.CustomizedEntityExceptionHandler.prepareExceptions;
 import static payments.duo.security.SecurityConfig.SIGNUP_ENDPOINT;
+import static payments.duo.utils.Constants.TOKEN_DECLARATION_IS_WRONG;
 import static payments.duo.utils.ResponseBuilder.buildResponse;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -28,15 +31,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     UserDetailsService userDetailsService;
 
     // TODO implement proper request filtering for swagger
-    // TODO resolve issue of unexisting user in token
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         if (Objects.equals(request.getServletPath(), SIGNUP_ENDPOINT) ||
                 request.getServletPath().contains("swagger") ||
                 request.getServletPath().contains("v2/api-docs")) {
             filterChain.doFilter(request, response);
-        }
-        else {
+        } else {
             try {
                 String authHeader = request.getHeader(AUTHORIZATION);
                 DecodedJWT decodedJWT = jwtTokenProvider.resolveToken(authHeader);
@@ -45,6 +46,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         username, null, jwtTokenProvider.getAuthoritiesFromToken(decodedJWT));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 filterChain.doFilter(request, response);
+            } catch (SignatureVerificationException exception) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                buildResponse(response, prepareExceptions(new JwtTokenException(TOKEN_DECLARATION_IS_WRONG)));
             } catch (Exception exception) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 buildResponse(response, prepareExceptions(exception));

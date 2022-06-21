@@ -15,7 +15,9 @@ import payments.duo.repository.PaymentRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,9 +34,10 @@ public class PaymentService {
         this.categoryService = categoryService;
     }
 
-    public Payment findPaymentById(Long id) {
-        return paymentRepository.findById(id)
+    public PaymentResponse findPaymentById(Long id) {
+        Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + id + " hasn't been found"));
+        return setPaymentResponse(payment);
     }
 
     public PaymentResponse savePayment(CreatePaymentCommand command) {
@@ -96,13 +99,11 @@ public class PaymentService {
     }
 
     public static PaymentReportResponse getPaymentReportResponse(List<PaymentReportResponseParameters> reportResponses) {
-        List<String> categories = new ArrayList<>();
-        List<BigDecimal> amounts = new ArrayList<>();
+        Map<String, BigDecimal> result = new HashMap<>();
         reportResponses.forEach(parameter -> {
-            categories.add(parameter.getCategory());
-            amounts.add(parameter.getAmount());
+            result.put(parameter.getCategory(), parameter.getAmount());
         });
-        return new PaymentReportResponse(categories, amounts);
+        return new PaymentReportResponse(result);
     }
 
     private Payment preparePaymentToSave(CreatePaymentCommand command) {

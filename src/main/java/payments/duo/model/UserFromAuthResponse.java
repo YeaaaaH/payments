@@ -1,17 +1,15 @@
-package payments.duo.model.response;
+package payments.duo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
-import java.util.Map;
+import payments.duo.model.request.auth.UserCommand;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentReportResponse {
-    Map<String, BigDecimal> report;
+public class UserFromAuthResponse {
+    UserCommand user;
 }

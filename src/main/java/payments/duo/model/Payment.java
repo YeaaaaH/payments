@@ -12,13 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 
 @Entity
 @Table(name = "payments")
 @Data
-public class Payment {
+public class Payment implements Serializable {
     @Id
     @Column(name="PAYMENT_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,7 @@ public class Payment {
     private String description;
     private BigDecimal amount;
     private Date createdOn;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name ="USER_ID")
     private User user;
     @ManyToOne

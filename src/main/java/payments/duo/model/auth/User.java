@@ -12,13 +12,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.List;
 //TODO add constrain for username uniqueness in DB
 @Entity
 @Table(name = "users")
 @Data
-public class User {
+public class User implements Serializable {
     @Id
     @Column(name="USER_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

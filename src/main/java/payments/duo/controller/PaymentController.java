@@ -35,7 +35,7 @@ public class PaymentController {
     }
 
     @GetMapping("{id}")
-    public Payment getPaymentById(@PathVariable long id) {
+    public PaymentResponse getPaymentById(@PathVariable long id) {
         return paymentService.findPaymentById(id);
     }
 
@@ -47,7 +47,7 @@ public class PaymentController {
     @PostMapping("saveAll")
     public ResponseEntity<String> saveAllPayments(@Valid @RequestBody CreatePaymentsListCommand command) {
         paymentService.saveAllPayments(command.getPaymentCommands());
-        return new ResponseEntity<>("Batch save processed.", HttpStatus.OK);
+        return new ResponseEntity<>("Batch save processed successfully.", HttpStatus.OK);
     }
 
     @PutMapping
@@ -58,7 +58,7 @@ public class PaymentController {
     @DeleteMapping("{id}")
     public ResponseEntity<String> deletePaymentById(@PathVariable long id) {
         paymentService.deletePaymentById(id);
-        return new ResponseEntity<>("Payment with id:" + id + " deleted", HttpStatus.OK);
+        return new ResponseEntity<>("Payment with id:" + id + " had been deleted", HttpStatus.OK);
     }
 
     @GetMapping("/list/yearly")

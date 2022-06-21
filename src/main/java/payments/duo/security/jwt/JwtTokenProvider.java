@@ -48,7 +48,9 @@ public class JwtTokenProvider {
     }
 
     public List<String> getRoleNamesFromAuthorities(JwtUser user) {
-        return user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        return user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
     }
 
     public List<GrantedAuthority> getAuthoritiesFromToken(DecodedJWT decodedJWT) {

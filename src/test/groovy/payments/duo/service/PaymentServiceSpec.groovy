@@ -104,30 +104,34 @@ class PaymentServiceSpec extends Specification {
 
     def "should return payments report response yearly"() {
         given:
-            List<PaymentReportResponseParameters> params = List.of(createPaymentReportParams(), createPaymentReportParams())
-            PaymentReportResponse reportResponse = getPaymentReportResponse(params)
+            List<PaymentReportResponseParameters> params = List.of(
+                    createPaymentReportParams("Food", 100 as BigDecimal),
+                    createPaymentReportParams("Cloth", 200 as BigDecimal)
+            )
         when:
             PaymentReportResponse response = service.calculateYearlyByUserAndCategory(1, 2021)
         then:
             1 * paymentRepository.calculateYearlyByUserAndCategory(1, 2021) >> params
-            response.categories.size() == 2
-            response.totals.size() == 2
-            response.categories[1] == reportResponse.categories[1]
-            response.totals[1] == reportResponse.totals[1]
+            response.report.size() == 2
+            response.report.get("Food") == 100
+            response.report.get("Cloth") == 200
+
     }
 
     def "should return payments report response monthly"() {
         given:
-            List<PaymentReportResponseParameters> params = List.of(createPaymentReportParams())
+            List<PaymentReportResponseParameters> params = List.of(
+                    createPaymentReportParams("Food", 100 as BigDecimal),
+                    createPaymentReportParams("Cloth", 200 as BigDecimal)
+            )
             PaymentReportResponse reportResponse = getPaymentReportResponse(params)
         when:
             PaymentReportResponse response = service.calculateMonthlyByUserAndCategory(1, 2021 , 9)
         then:
             1 * paymentRepository.calculateMonthlyByUserAndCategory(1, 2021, 9) >> params
-            !response.categories.empty
-            !response.totals.empty
-            response.categories[0] == reportResponse.categories[0]
-            response.totals[0] == reportResponse.totals[0]
+            response.report.size() == 2
+            response.report.get("Food") == 100
+            response.report.get("Cloth") == 200
     }
 
     private CreatePaymentCommand createValidCommand() {
@@ -169,10 +173,10 @@ class PaymentServiceSpec extends Specification {
         paymentResponse
     }
 
-    private PaymentReportResponseParameters createPaymentReportParams() {
+    private PaymentReportResponseParameters createPaymentReportParams(String category, BigDecimal amount) {
         PaymentReportResponseParameters parameters = new PaymentReportResponseParameters(
-                category: 'category',
-                amount: 1000
+                category: category,
+                amount: amount
         )
         parameters
     }

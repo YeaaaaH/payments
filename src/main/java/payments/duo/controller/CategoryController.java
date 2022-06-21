@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.Category;
+import payments.duo.model.response.FindAllCategoriesResponse;
 import payments.duo.service.CategoryService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/category")
@@ -28,9 +28,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public Map<String, List<Category>> findAllCategories() {
+    public FindAllCategoriesResponse findAllCategories() {
         List<Category> categories = categoryService.findAllCategories();
-        //TODO add custom response
-        return Map.of("categories", categories);
+        return new FindAllCategoriesResponse(categories);
     }
 }
