@@ -16,7 +16,7 @@ class UserServiceSpec extends Specification {
     UserRepository userRepository
     RoleRepository roleRepository
     BCryptPasswordEncoder passwordEncoder
-    UserService service = new UserService(userRepository, roleRepository, passwordEncoder)
+    UserService service
 
     def setup() {
         userRepository = Mock(UserRepository)
@@ -27,7 +27,7 @@ class UserServiceSpec extends Specification {
 
     def "should save valid user"() {
         given:
-            CreateUserCommand command = createValidCommand()
+            CreateUserCommand command = createValidUserCommand()
         when:
             service.registration(command)
         then:
@@ -99,7 +99,7 @@ class UserServiceSpec extends Specification {
             false | _
     }
 
-    private CreateUserCommand createValidCommand() {
+    private CreateUserCommand createValidUserCommand() {
         CreateUserCommand command = new CreateUserCommand()
         command.username = 'username'
         command.password = 'password'

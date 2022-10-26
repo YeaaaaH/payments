@@ -9,5 +9,6 @@ public class Constants {
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String TOKEN_NOT_FOUND = "Token has not been found";
     public static final String TOKEN_DECLARATION_IS_WRONG = "Token declaration is wrong";
+    public static final String TOKEN_IS_EXPIRED = "The Token has expired";
     public static final String VALID_PAYMENT_AMOUNT_MESSAGE = "must be a positive value";
 }

@@ -1,6 +1,7 @@
 package payments.duo.security.filters;
 
 import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,7 @@ import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static payments.duo.exception.CustomizedEntityExceptionHandler.prepareExceptions;
 import static payments.duo.security.SecurityConfig.SIGNUP_ENDPOINT;
 import static payments.duo.utils.Constants.TOKEN_DECLARATION_IS_WRONG;
+import static payments.duo.utils.Constants.TOKEN_IS_EXPIRED;
 import static payments.duo.utils.ResponseBuilder.buildResponse;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -49,6 +51,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             } catch (SignatureVerificationException exception) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 buildResponse(response, prepareExceptions(new JwtTokenException(TOKEN_DECLARATION_IS_WRONG)));
+            } catch (TokenExpiredException expiredException) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                buildResponse(response, prepareExceptions(new TokenExpiredException(TOKEN_IS_EXPIRED)));
             } catch (Exception exception) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 buildResponse(response, prepareExceptions(exception));

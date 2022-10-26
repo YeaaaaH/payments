@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import payments.duo.model.Payment;
 import payments.duo.model.request.CreatePaymentCommand;
 import payments.duo.model.request.CreatePaymentsListCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
@@ -35,7 +34,7 @@ public class PaymentController {
     }
 
     @GetMapping("{id}")
-    public PaymentResponse getPaymentById(@PathVariable long id) {
+    public PaymentResponse getPaymentById(@PathVariable Long id) {
         return paymentService.findPaymentById(id);
     }
 
@@ -50,13 +49,13 @@ public class PaymentController {
         return new ResponseEntity<>("Batch save processed successfully.", HttpStatus.OK);
     }
 
-    @PutMapping
-    public PaymentResponse updatePayment(@RequestBody UpdatePaymentCommand command) {
-        return paymentService.updatePayment(command);
+    @PutMapping("{id}")
+    public PaymentResponse updatePayment(@RequestBody UpdatePaymentCommand command, @PathVariable Long id) {
+        return paymentService.updatePayment(command, id);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deletePaymentById(@PathVariable long id) {
+    public ResponseEntity<String> deletePaymentById(@PathVariable Long id) {
         paymentService.deletePaymentById(id);
         return new ResponseEntity<>("Payment with id:" + id + " had been deleted", HttpStatus.OK);
     }

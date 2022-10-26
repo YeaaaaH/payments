@@ -20,7 +20,7 @@ class PaymentServiceSpec extends Specification {
     UserService userService
     CategoryService categoryService
     PaymentRepository paymentRepository
-    PaymentService service = new PaymentService(userService, paymentRepository, categoryService)
+    PaymentService service
 
     def setup() {
         userService = Mock(UserService)

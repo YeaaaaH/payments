@@ -2,9 +2,12 @@ package payments.duo.controller;
 
 import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import payments.duo.model.UserFromAuthResponse;
+import payments.duo.model.UserResponse;
 import payments.duo.model.request.auth.UserCommand;
 import payments.duo.service.UserService;
 
@@ -20,9 +23,13 @@ public class UserController {
     }
 
     @GetMapping
-    public UserFromAuthResponse getUserFromAuth() {
+    public UserResponse getUserFromAuth() {
         UserCommand userCommand = userService.getUserFromAuth();
-        return new UserFromAuthResponse(userCommand);
+        return new UserResponse(userCommand);
     }
-    //TODO add user update
+
+    @PutMapping("{id}")
+    public UserResponse updateUser(@RequestBody UserCommand userCommand, @PathVariable Long id) {
+        return new UserResponse(userService.updateUser(userCommand, id));
+    }
 }

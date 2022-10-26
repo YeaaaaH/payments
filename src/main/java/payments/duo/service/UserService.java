@@ -54,6 +54,16 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    public UserCommand updateUser(UserCommand userCommand, Long id) {
+        User user = findUserById(id);
+        user.setFirstName(userCommand.getFirstName());
+        user.setLastName(userCommand.getLastName());
+        user.setEmail(userCommand.getEmail());
+        user.setUpdatedOn(new Date(System.currentTimeMillis()));
+        user = userRepository.save(user);
+        return UserFactory.toUserCommand(user);
+    }
+
     public UserCommand getUserFromAuth() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = findUserByUsername(authentication.getName());

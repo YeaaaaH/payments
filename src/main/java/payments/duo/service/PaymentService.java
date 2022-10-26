@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,12 +46,17 @@ public class PaymentService {
         return setPaymentResponse(paymentRepository.save(payment));
     }
 
-    public PaymentResponse updatePayment(UpdatePaymentCommand command) {
-        Payment payment = paymentRepository.findById(command.getId())
+    public PaymentResponse updatePayment(UpdatePaymentCommand command, Long id) {
+        Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + command.getId() + " hasn't been found"));
         payment.setAmount(command.getAmount());
         payment.setDescription(command.getDescription());
         payment.setTitle(command.getTitle());
+        if (Objects.nonNull(command.getCategoryId())) {
+            Category category = categoryService.findCategoryById(command.getCategoryId());
+            payment.setCategory(category);
+        }
+//        payment.setUpdatedOn()
         return setPaymentResponse(paymentRepository.save(payment));
     }
 
@@ -95,6 +101,7 @@ public class PaymentService {
         paymentResponse.setAmount(payment.getAmount());
         paymentResponse.setCategoryName(payment.getCategory().getName());
         paymentResponse.setCreatedOn(payment.getCreatedOn());
+//        paymentResponse.setUpdatedOn(payment.getUpdatedOn());
         return paymentResponse;
     }
 

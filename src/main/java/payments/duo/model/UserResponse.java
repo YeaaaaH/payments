@@ -10,6 +10,6 @@ import payments.duo.model.request.auth.UserCommand;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserFromAuthResponse {
+public class UserResponse {
     UserCommand user;
 }
