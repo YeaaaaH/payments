@@ -14,7 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "payments")
@@ -27,11 +27,11 @@ public class Payment implements Serializable {
     private String title;
     private String description;
     private BigDecimal amount;
-    private Date createdOn;
-    @ManyToOne
+    private LocalDate createdOn;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="USER_ID")
     private User user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="CATEGORY_ID")
     private Category category;
 }

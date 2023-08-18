@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.sql.Date;
+import java.time.LocalDate;
 
 import static payments.duo.utils.Constants.VALID_PASSWORD_LENGTH_MESSAGE;
 
@@ -19,7 +19,7 @@ public class CreateUserCommand extends UserCommand {
     private String password;
 
     public CreateUserCommand(Long userId, String username, String email, String firstName, String lastName,
-                             Date createdOn, Date updatedOn, String password) {
+                             LocalDate createdOn, LocalDate updatedOn, String password) {
         super(userId, username, email, firstName, lastName, createdOn, updatedOn);
         this.password = password;
     }

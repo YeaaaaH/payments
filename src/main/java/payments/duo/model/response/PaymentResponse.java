@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-//TODO change date to timestamp
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,6 +17,6 @@ public class PaymentResponse {
     private String description;
     private BigDecimal amount;
     private String categoryName;
-    private Date createdOn;
-    private Date updatedOn;
+    private LocalDate createdOn;
+    private LocalDate updatedOn;
 }

@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd"
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
-    <changeSet id="1" author="dimashtef">
+    <changeSet id="1" author="author">
         <addColumn tableName="payments">
             <column name="title" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -14,7 +14,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="2" author="dimashtef">
+    <changeSet id="2" author="author">
         <addNotNullConstraint columnName="amount" tableName="payments"/>
         <addNotNullConstraint columnName="created_on" tableName="payments"/>
         <addNotNullConstraint columnName="category_id" tableName="payments"/>

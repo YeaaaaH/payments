@@ -10,7 +10,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.sql.Date;
+import java.time.LocalDate;
 
 import static payments.duo.utils.Constants.VALID_USERNAME_LENGTH_MESSAGE;
 import static payments.duo.utils.Constants.VALID_USERNAME_PATTERN_MESSAGE;
@@ -32,10 +32,10 @@ public class UserCommand {
     private String email;
     private String firstName;
     private String lastName;
-    private Date createdOn;
-    private Date updatedOn;
+    private LocalDate createdOn;
+    private LocalDate updatedOn;
 
-    public UserCommand(Long userId, String username, String email, String firstName, String lastName, Date createdOn, Date updatedOn) {
+    public UserCommand(Long userId, String username, String email, String firstName, String lastName, LocalDate createdOn, LocalDate updatedOn) {
         this.userId = userId;
         this.username = username;
         this.email = email;

@@ -13,7 +13,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 //TODO add constrain for username uniqueness in DB
 @Entity
@@ -29,8 +29,8 @@ public class User implements Serializable {
     private String email;
     private String firstName;
     private String lastName;
-    private Date createdOn;
-    private Date updatedOn;
+    private LocalDate createdOn;
+    private LocalDate updatedOn;
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "user_id")},

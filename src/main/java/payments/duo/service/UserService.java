@@ -17,7 +17,7 @@ import payments.duo.repository.RoleRepository;
 import payments.duo.repository.UserRepository;
 import payments.duo.utils.UserFactory;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -50,7 +50,7 @@ public class UserService implements UserDetailsService {
         user.setLastName(createUserCommand.getLastName());
         Role role = roleRepository.findByName("ROLE_CLIENT");
         user.setRoles(List.of(role));
-        user.setCreatedOn(new Date(System.currentTimeMillis()));
+        user.setCreatedOn(LocalDate.now());
         return userRepository.save(user);
     }
 
@@ -59,7 +59,7 @@ public class UserService implements UserDetailsService {
         user.setFirstName(userCommand.getFirstName());
         user.setLastName(userCommand.getLastName());
         user.setEmail(userCommand.getEmail());
-        user.setUpdatedOn(new Date(System.currentTimeMillis()));
+        user.setUpdatedOn(LocalDate.now());
         user = userRepository.save(user);
         return UserFactory.toUserCommand(user);
     }

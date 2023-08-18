@@ -11,7 +11,7 @@ import payments.duo.model.response.PaymentResponse
 import payments.duo.repository.PaymentRepository
 import spock.lang.Specification
 
-import java.sql.Date
+import java.time.LocalDate
 
 import static payments.duo.service.PaymentService.getPaymentReportResponse
 
@@ -141,7 +141,7 @@ class PaymentServiceSpec extends Specification {
         command.title = 'title'
         command.description = 'description'
         command.userId = 1
-        command.createdOn = new Date(System.currentTimeMillis())
+        command.createdOn = LocalDate.now()
         command
     }
 
@@ -154,7 +154,7 @@ class PaymentServiceSpec extends Specification {
         payment.category = category
         payment.title = 'title'
         payment.description = 'description'
-        payment.createdOn = new Date(System.currentTimeMillis())
+        payment.createdOn = LocalDate.now()
         User user = new User(
                 id: 1,
                 username: 'username'
