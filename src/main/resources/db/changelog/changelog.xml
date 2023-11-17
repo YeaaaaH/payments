@@ -11,6 +11,5 @@
     <include file="db/changelog/changeSet/003-payments-add-columns.xml"/>
     <include file="db/changelog/changeSet/004-users-roles.xml"/>
     <include file="db/changelog/changeSet/005-roles-insert.xml"/>
-    <include file="db/changelog/changeSet/006-user-admin-insert.xml"/>
 
 </databaseChangeLog>

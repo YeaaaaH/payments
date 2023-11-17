@@ -33,15 +33,13 @@ public class UserCommand {
     private String firstName;
     private String lastName;
     private LocalDate createdOn;
-    private LocalDate updatedOn;
 
-    public UserCommand(Long userId, String username, String email, String firstName, String lastName, LocalDate createdOn, LocalDate updatedOn) {
+    public UserCommand(Long userId, String username, String email, String firstName, String lastName, LocalDate createdOn) {
         this.userId = userId;
         this.username = username;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdOn = createdOn;
-        this.updatedOn = updatedOn;
     }
 }

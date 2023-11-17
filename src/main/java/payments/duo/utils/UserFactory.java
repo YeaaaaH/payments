@@ -35,8 +35,7 @@ public final class UserFactory {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getCreatedOn(),
-                user.getUpdatedOn()
+                user.getCreatedOn()
         );
     }
 }

@@ -19,8 +19,8 @@ public class CreateUserCommand extends UserCommand {
     private String password;
 
     public CreateUserCommand(Long userId, String username, String email, String firstName, String lastName,
-                             LocalDate createdOn, LocalDate updatedOn, String password) {
-        super(userId, username, email, firstName, lastName, createdOn, updatedOn);
+                             LocalDate createdOn, String password) {
+        super(userId, username, email, firstName, lastName, createdOn);
         this.password = password;
     }
 }
