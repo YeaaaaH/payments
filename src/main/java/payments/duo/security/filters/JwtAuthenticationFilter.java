@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import payments.duo.security.jwt.JwtTokenProvider;
+import payments.duo.security.jwt.JwtUser;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     // TODO investigate body input credentials
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {// TODO investigate change for json username password input
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = super.obtainUsername(request);
         String password = super.obtainPassword(request);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
@@ -40,7 +41,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        String accessToken = jwtTokenProvider.createToken(authResult);
+        JwtUser jwtUser = (JwtUser) authResult.getPrincipal();
+        String accessToken = jwtTokenProvider.createToken(jwtUser);
         Map<String, String> responseData = new HashMap<>();
         responseData.put("access_token", accessToken);
         buildResponse(response, responseData);

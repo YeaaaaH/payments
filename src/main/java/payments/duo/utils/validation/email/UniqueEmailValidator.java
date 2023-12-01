@@ -1,16 +1,16 @@
 package payments.duo.utils.validation.email;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import payments.duo.service.UserService;
+import payments.duo.service.impl.UserServiceImpl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
     @Autowired
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public UniqueEmailValidator(UserService userService) {
+    public UniqueEmailValidator(UserServiceImpl userService) {
         this.userService = userService;
     }
 

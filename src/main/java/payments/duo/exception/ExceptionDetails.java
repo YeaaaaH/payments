@@ -1,8 +1,10 @@
 package payments.duo.exception;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
+@NoArgsConstructor
 public class ExceptionDetails {
     private String message;
 

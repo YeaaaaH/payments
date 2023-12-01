@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import payments.duo.model.auth.User;
-import payments.duo.service.UserService;
+import payments.duo.service.impl.UserServiceImpl;
 import payments.duo.utils.UserFactory;
 
 import java.util.List;
@@ -18,9 +18,9 @@ import java.util.List;
 public class AuthProviderImpl implements AuthenticationProvider {
 
     private final BCryptPasswordEncoder passwordEncoder;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public AuthProviderImpl(UserService userService, BCryptPasswordEncoder passwordEncoder) {
+    public AuthProviderImpl(UserServiceImpl userService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }

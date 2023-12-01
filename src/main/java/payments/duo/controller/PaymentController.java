@@ -17,7 +17,7 @@ import payments.duo.model.request.CreatePaymentsListCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
 import payments.duo.model.response.PaymentReportResponse;
 import payments.duo.model.response.PaymentResponse;
-import payments.duo.service.PaymentService;
+import payments.duo.service.impl.PaymentServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -27,9 +27,9 @@ import java.util.List;
 @Api(description="Operations related to payments")
 public class PaymentController {
 
-    private final PaymentService paymentService;
+    private final PaymentServiceImpl paymentService;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentServiceImpl paymentService) {
         this.paymentService = paymentService;
     }
 

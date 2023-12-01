@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
 import payments.duo.model.request.auth.UserCommand;
-import payments.duo.service.UserService;
+import payments.duo.service.impl.UserServiceImpl;
 import payments.duo.utils.UserFactory;
 
 import javax.validation.Valid;
@@ -17,9 +17,9 @@ import javax.validation.Valid;
 @RequestMapping(value = "api/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserServiceImpl userService) {
         this.userService = userService;
     }
 

@@ -1,5 +1,5 @@
 package payments.duo.utils;
-
+//TODO move to some file?
 public class Constants {
     public static final String VALID_USERNAME_LENGTH_MESSAGE = "must be between 4 and 16 symbols length";
     public static final String VALID_USERNAME_PATTERN_MESSAGE = "must consists of alphanumeric characters only," +

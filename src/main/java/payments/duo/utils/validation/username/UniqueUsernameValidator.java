@@ -1,7 +1,7 @@
 package payments.duo.utils.validation.username;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import payments.duo.service.UserService;
+import payments.duo.service.impl.UserServiceImpl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -9,9 +9,9 @@ import javax.validation.ConstraintValidatorContext;
 public class UniqueUsernameValidator implements ConstraintValidator<UniqueUsername, String> {
 
     @Autowired
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public UniqueUsernameValidator(UserService userService) {
+    public UniqueUsernameValidator(UserServiceImpl userService) {
         this.userService = userService;
     }
 

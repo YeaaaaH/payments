@@ -43,9 +43,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             try {
                 String authHeader = request.getHeader(AUTHORIZATION);
                 DecodedJWT decodedJWT = jwtTokenProvider.resolveToken(authHeader);
-                String username = decodedJWT.getSubject();
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        username, null, jwtTokenProvider.getAuthoritiesFromToken(decodedJWT));
+                        decodedJWT.getSubject(),
+                        null,
+                        jwtTokenProvider.getAuthoritiesFromToken(decodedJWT));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 filterChain.doFilter(request, response);
             } catch (SignatureVerificationException exception) {
