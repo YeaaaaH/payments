@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import payments.duo.model.Category;
 import payments.duo.model.response.FindAllCategoriesResponse;
-import payments.duo.service.impl.CategoryServiceImpl;
+import payments.duo.service.CategoryService;
 
 import java.util.List;
 
@@ -16,9 +16,9 @@ import java.util.List;
 @Api(description="Operations related to categories, allowed only GET methods")
 public class CategoryController {
 
-    private final CategoryServiceImpl categoryService;
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryServiceImpl categoryService) {
+    public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 

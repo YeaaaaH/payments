@@ -8,6 +8,8 @@ import payments.duo.service.CategoryService;
 
 import java.util.List;
 
+import static payments.duo.utils.Constants.CATEGORY_NOT_FOUND_MESSAGE;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -23,6 +25,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     public Category findCategoryById(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + id + " hasn't been found"));
+                .orElseThrow(() -> new CategoryNotFoundException(String.format(CATEGORY_NOT_FOUND_MESSAGE, id)));
     }
 }

@@ -1,12 +1,7 @@
 package payments.duo.service.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,16 +13,16 @@ import payments.duo.model.request.auth.UserCommand;
 import payments.duo.repository.RoleRepository;
 import payments.duo.repository.UserRepository;
 import payments.duo.service.UserService;
-import payments.duo.utils.UserFactory;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static payments.duo.utils.Constants.USER_NOT_FOUND_MESSAGE_ID;
+import static payments.duo.utils.Constants.USER_NOT_FOUND_MESSAGE_USERNAME;
+
 @Service
 @Transactional
-@Primary
-public class UserServiceImpl implements UserService, UserDetailsService {
-
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -38,12 +33,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User with name: " + username + " hasn't been found"));
-        return UserFactory.toJwtUser(user);
-    }
+
 
     public User registration(CreateUserCommand createUserCommand) {
         User user = new User();
@@ -52,7 +42,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setEmail(createUserCommand.getEmail());
         user.setFirstName(createUserCommand.getFirstName());
         user.setLastName(createUserCommand.getLastName());
-        Role role = roleRepository.findByName("ROLE_CLIENT");
+        Role role = roleRepository.findByName("CLIENT");
         user.setRoles(List.of(role));
         user.setCreatedOn(LocalDate.now());
         return userRepository.save(user);
@@ -77,20 +67,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return user;
     }
 
-    public UserCommand getUserFromAuth() {
+    public User getUserFromAuth() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = findUserByUsername(authentication.getName());
-        return UserFactory.toUserCommand(user);
+        return findUserByUsername(authentication.getName());
     }
-
     public User findUserByUsername(String username) {
         return userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User with username: " + username + " hadn't been found"));
+                .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND_MESSAGE_USERNAME, username)));
     }
 
     public User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " hadn't been found"));
+                .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND_MESSAGE_ID, id)));
     }
 
     public boolean isUserExistsByUsername(String username) {

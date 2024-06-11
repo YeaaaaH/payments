@@ -9,19 +9,23 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import payments.duo.model.UserResponse;
+import payments.duo.model.request.auth.SignInRequest;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
 import payments.duo.model.request.auth.UserCommand;
+import payments.duo.model.response.UserDTO;
 import payments.duo.security.jwt.JwtTokenProvider;
 import payments.duo.service.UserService;
-import payments.duo.utils.UserFactory;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,7 +47,6 @@ class IntegrationUserControllerTest {
     @Autowired
     JwtTokenProvider tokenProvider;
 
-    //TODO find how to launch only 1 container for tests
     @Container
     public static PostgreSQLContainer<?> pgContainer = new PostgreSQLContainer<>("postgres:13.3")
             .withDatabaseName("duo")
@@ -59,9 +62,9 @@ class IntegrationUserControllerTest {
     }
 
     @Test
-    public void updateUserTest() {
+    void updateUserTest() {
         CreateUserCommand command = createCommandBase();
-        command.setUsername("username5");
+        command.setUsername("username_auth");
         command.setEmail("test@user5.mail");
         User user = userService.registration(command);
 
@@ -69,41 +72,49 @@ class IntegrationUserControllerTest {
         userCommand.setEmail("test@userUPDATE.mail");
         userCommand.setUsername("usernameUPDATE");
 
-        String token = tokenProvider.createToken(UserFactory.toJwtUser(user));
+        SignInRequest signInRequest = new SignInRequest(command.getUsername(), command.getPassword());
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                signInRequest.getUsername(), signInRequest.getPassword(), List.of(new SimpleGrantedAuthority("CLIENT"))
+        );
+        String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        ResponseEntity<UserResponse> response = restTemplate.exchange(
+        ResponseEntity<UserDTO> response = restTemplate.exchange(
                 userEndpoint + "/" + user.getId(),
                 HttpMethod.PUT,
                 new HttpEntity<>(userCommand, headers),
-                UserResponse.class);
-        UserResponse userResponse = response.getBody();
+                UserDTO.class);
+        UserDTO userResponse = response.getBody();
 
-        assertNotNull(userResponse.getUser());
-        assertEquals(userCommand.getEmail(), userResponse.getUser().getEmail());
-        assertEquals(userCommand.getUsername(), userResponse.getUser().getUsername());
+        assertNotNull(userResponse);
+        assertEquals(userCommand.getEmail(), userResponse.getEmail());
+        assertEquals(userCommand.getUsername(), userResponse.getUsername());
     }
 
     @Test
-    public void getUserFromAuthTest() {
+    void getUserFromAuthTest() {
         CreateUserCommand command = createCommandBase();
         command.setUsername("username_auth");
         command.setEmail("auth@user.mail");
         User user = userService.registration(command);
 
-        String token = tokenProvider.createToken(UserFactory.toJwtUser(user));
+        SignInRequest signInRequest = new SignInRequest(command.getUsername(), command.getPassword());
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                signInRequest.getUsername(), signInRequest.getPassword(), List.of(new SimpleGrantedAuthority("CLIENT"))
+        );
+        String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        ResponseEntity<UserResponse> response = restTemplate.exchange(
+        ResponseEntity<UserDTO> response = restTemplate.exchange(
                 userEndpoint,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                UserResponse.class);
-        UserResponse userResponse = response.getBody();
+                UserDTO.class);
+        UserDTO userResponse = response.getBody();
 
-        assertNotNull(userResponse.getUser());
-        assertEquals(user.getEmail(), userResponse.getUser().getEmail());
-        assertEquals(user.getUsername(), userResponse.getUser().getUsername());
+        assertNotNull(userResponse);
+        assertEquals(user.getEmail(), userResponse.getEmail());
+        assertEquals(user.getUsername(), userResponse.getUsername());
     }
 
     private CreateUserCommand createCommandBase() {

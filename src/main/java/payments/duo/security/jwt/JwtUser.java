@@ -1,6 +1,8 @@
 package payments.duo.security.jwt;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -10,12 +12,15 @@ public class JwtUser implements UserDetails {
 
     private final String username;
     private final String password;
-    private final List<GrantedAuthority> authorities;
+    private final List<SimpleGrantedAuthority> authorities;
+    @Getter
+    private final Long userId;
 
-    public JwtUser(String username, String password, List<GrantedAuthority> authorities) {
+    public JwtUser(String username, String password, List<SimpleGrantedAuthority> authorities, Long userId) {
         this.username = username;
         this.password = password;
         this.authorities = authorities;
+        this.userId = userId;
     }
 
     @Override

@@ -12,7 +12,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
-import payments.duo.service.UserService;
+import payments.duo.service.impl.UserServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class IntegrationUserServiceTest {
 
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
 
     @Container
     public static PostgreSQLContainer<?> pgContainer = new PostgreSQLContainer<>("postgres:13.3")
@@ -43,7 +43,7 @@ class IntegrationUserServiceTest {
     }
 
     @Test
-    public void findUserByIdTest() {
+    void findUserByIdTest() {
         CreateUserCommand command = createCommandBase();
         command.setUsername("username1");
         command.setEmail("test@user1.mail");
@@ -57,7 +57,7 @@ class IntegrationUserServiceTest {
     }
 
     @Test
-    public void isUserExistsByUsernameTest() {
+    void isUserExistsByUsernameTest() {
         CreateUserCommand command = createCommandBase();
         command.setUsername("username2");
         command.setEmail("test@user2.mail");
@@ -69,7 +69,7 @@ class IntegrationUserServiceTest {
     }
 
     @Test
-    public void isUserExistsByEmailTest() {
+    void isUserExistsByEmailTest() {
         CreateUserCommand command = createCommandBase();
         command.setUsername("username3");
         command.setEmail("test@user3.mail");
@@ -81,7 +81,7 @@ class IntegrationUserServiceTest {
     }
 
     @Test
-    public void findUserByUsernameTest() {
+    void findUserByUsernameTest() {
         CreateUserCommand command = createCommandBase();
         command.setUsername("username4");
         command.setEmail("test@user4.mail");

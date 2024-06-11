@@ -7,11 +7,11 @@
     <changeSet id="1" author="author">
         <insert tableName="roles">
             <column name="role_id" valueNumeric="1"/>
-            <column name="name" value="ROLE_ADMIN"/>
+            <column name="name" value="ADMIN"/>
         </insert>
         <insert tableName="roles">
             <column name="role_id" valueNumeric="2"/>
-            <column name="name" value="ROLE_CLIENT"/>
+            <column name="name" value="CLIENT"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

@@ -20,7 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
+import static payments.duo.utils.Constants.PAYMENT_NOT_FOUND_MESSAGE;
 
 @Service
 @Transactional
@@ -38,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     public PaymentResponse findPaymentById(Long id) {
         Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + id + " hasn't been found"));
+                .orElseThrow(() -> new PaymentNotFoundException(String.format(PAYMENT_NOT_FOUND_MESSAGE, id)));
         return setPaymentResponse(payment);
     }
 
@@ -49,7 +50,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     public PaymentResponse updatePayment(UpdatePaymentCommand command, Long id) {
         Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + command.getId() + " hasn't been found"));
+                .orElseThrow(() -> new PaymentNotFoundException(String.format(PAYMENT_NOT_FOUND_MESSAGE, command.getId())));
         payment.setAmount(command.getAmount());
         payment.setDescription(command.getDescription());
         payment.setTitle(command.getTitle());
@@ -63,26 +64,24 @@ public class PaymentServiceImpl implements PaymentService {
 
     public void deletePaymentById(Long id) {
         Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException("Payment with id: " + id + " hasn't been found"));
+                .orElseThrow(() -> new PaymentNotFoundException(String.format(PAYMENT_NOT_FOUND_MESSAGE, id)));
         paymentRepository.delete(payment);
     }
 
     public void saveAllPayments(List<CreatePaymentCommand> commandsList) {
         List<Payment> paymentsList = new ArrayList<>();
-        commandsList.forEach(command -> {
-            paymentsList.add(preparePaymentToSave(command));
-        });
+        commandsList.forEach(command -> paymentsList.add(preparePaymentToSave(command)));
         paymentRepository.saveAll(paymentsList);
     }
 
     public List<PaymentResponse> findAllByUserForYear(Long userId, int year) {
         List<Payment> payments = paymentRepository.findAllByUserForYear(userId, year);
-        return payments.stream().map(this::setPaymentResponse).collect(Collectors.toList());
+        return payments.stream().map(this::setPaymentResponse).toList();
     }
 
     public List<PaymentResponse> findAllByUserForYearAndMonth(Long userId, int year, int month) {
         List<Payment> payments = paymentRepository.findAllByUserForYearAndMonth(userId, year, month);
-        return payments.stream().map(this::setPaymentResponse).collect(Collectors.toList());
+        return payments.stream().map(this::setPaymentResponse).toList();
     }
 
     public PaymentReportResponse calculateYearlyByUserAndCategory(Long userId, int year) {
@@ -108,9 +107,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private PaymentReportResponse getPaymentReportResponse(List<PaymentReportResponseParameters> reportResponses) {
         Map<String, BigDecimal> result = new HashMap<>();
-        reportResponses.forEach(parameter -> {
-            result.put(parameter.getCategory(), parameter.getAmount());
-        });
+        reportResponses.forEach(parameter -> result.put(parameter.getCategory(), parameter.getAmount()));
         return new PaymentReportResponse(result);
     }
 

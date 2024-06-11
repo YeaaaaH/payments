@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import payments.duo.model.UserResponse;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.UserCommand;
-import payments.duo.service.impl.UserServiceImpl;
+import payments.duo.model.response.UserDTO;
+import payments.duo.service.UserService;
 import payments.duo.utils.UserFactory;
 
 @RestController
@@ -18,21 +18,27 @@ import payments.duo.utils.UserFactory;
 @Api(description="Operations related to users")
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public UserController(UserServiceImpl userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping
-    public UserResponse getUserFromAuth() {
-        UserCommand userCommand = userService.getUserFromAuth();
-        return new UserResponse(userCommand);
+    public UserDTO getUserFromAuth() {
+        User user = userService.getUserFromAuth();
+        return UserFactory.toUserDTO(user);
     }
-    //TODO refactor update approach (userCommand)
+
+    @GetMapping("{id}")
+    public UserDTO getUserById(@PathVariable Long id) {
+        User user = userService.findUserById(id);
+        return UserFactory.toUserDTO(user);
+    }
+
     @PutMapping("{id}")
-    public UserResponse updateUser(@RequestBody UserCommand userCommand, @PathVariable Long id) {
+    public UserDTO updateUser(@RequestBody UserCommand userCommand, @PathVariable Long id) {
         User user = userService.updateUser(userCommand, id);
-        return new UserResponse(UserFactory.toUserCommand(user));
+        return UserFactory.toUserDTO(user);
     }
 }

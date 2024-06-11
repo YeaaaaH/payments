@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -18,14 +20,15 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import payments.duo.integration.configs.IntegrationTestConfig;
 import payments.duo.model.Category;
-import payments.duo.model.auth.User;
+import payments.duo.model.request.auth.SignInRequest;
 import payments.duo.model.request.auth.CreateUserCommand;
 import payments.duo.model.response.ExceptionResponse;
 import payments.duo.model.response.FindAllCategoriesResponse;
 import payments.duo.security.jwt.JwtTokenProvider;
 import payments.duo.service.CategoryService;
 import payments.duo.service.UserService;
-import payments.duo.utils.UserFactory;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -73,9 +76,12 @@ class IntegrationCategoryControllerTest {
         CreateUserCommand command = createCommandBase();
         command.setUsername("jwt_username");
         command.setEmail("jwt@user.mail");
-        User user = userService.registration(command);
-
-        String token = tokenProvider.createToken(UserFactory.toJwtUser(user));
+        userService.registration(command);
+        SignInRequest signInRequest = new SignInRequest(command.getUsername(), command.getPassword());
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                signInRequest.getUsername(), signInRequest.getPassword(), List.of(new SimpleGrantedAuthority("CLIENT"))
+        );
+        String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         ResponseEntity<Category> response = restTemplate.exchange(categoryEndpoint + "/1", HttpMethod.GET, new HttpEntity<>(headers), Category.class);
@@ -91,9 +97,12 @@ class IntegrationCategoryControllerTest {
         CreateUserCommand command = createCommandBase();
         command.setUsername("jwt_username1");
         command.setEmail("jwt@user1.mail");
-        User user = userService.registration(command);
-
-        String token = tokenProvider.createToken(UserFactory.toJwtUser(user));
+        userService.registration(command);
+        SignInRequest signInRequest = new SignInRequest(command.getUsername(), command.getPassword());
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                signInRequest.getUsername(), signInRequest.getPassword(), List.of(new SimpleGrantedAuthority("CLIENT"))
+        );
+        String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         ResponseEntity<FindAllCategoriesResponse> response = restTemplate.exchange(categoryEndpoint, HttpMethod.GET, new HttpEntity<>(headers), FindAllCategoriesResponse.class);

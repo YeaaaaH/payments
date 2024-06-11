@@ -1,41 +1,38 @@
 package payments.duo.utils;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import payments.duo.model.auth.Role;
 import payments.duo.model.auth.User;
-import payments.duo.model.request.auth.UserCommand;
+import payments.duo.model.response.UserDTO;
 import payments.duo.security.jwt.JwtUser;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class UserFactory {
-    public UserFactory() {
-    }
 
     public static JwtUser toJwtUser(User user) {
         return new JwtUser(
                 user.getUsername(),
                 user.getPassword(),
-                getAuthoritiesFromRoles(user.getRoles())
-        );
+                getAuthoritiesFromRoles(user.getRoles()),
+                user.getId());
     }
 
-    public static List<GrantedAuthority> getAuthoritiesFromRoles(List<Role> roles) {
+    public static List<SimpleGrantedAuthority> getAuthoritiesFromRoles(List<Role> roles) {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public static UserCommand toUserCommand(User user) {
-        return new UserCommand(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getCreatedOn()
-        );
+    public static UserDTO toUserDTO(User user) {
+        return UserDTO.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .createdOn(user.getCreatedOn())
+                .updatedOn(user.getUpdatedOn())
+                .build();
     }
 }
