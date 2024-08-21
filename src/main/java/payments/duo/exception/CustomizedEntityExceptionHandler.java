@@ -1,5 +1,6 @@
 package payments.duo.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,13 @@ import payments.duo.model.response.ExceptionResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestControllerAdvice
 public class CustomizedEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex) {
-        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -27,6 +29,7 @@ public class CustomizedEntityExceptionHandler extends ResponseEntityExceptionHan
                                                                      HttpStatus status, WebRequest request) {
         List<ExceptionDetails> exceptions = new ArrayList<>();
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            log.error("Error occurred for field {} : {}", fieldError.getField(), fieldError.getDefaultMessage());
             String[] message = {fieldError.getField(), fieldError.getDefaultMessage()};
             exceptions.add(new ExceptionDetails(String.join(" ", message)));
         }

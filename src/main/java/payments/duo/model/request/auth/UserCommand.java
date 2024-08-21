@@ -12,6 +12,8 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
+import static payments.duo.utils.Constants.VALID_MAIL_FORMAT_MESSAGE;
+import static payments.duo.utils.Constants.VALID_NOT_BLANK_MESSAGE;
 import static payments.duo.utils.Constants.VALID_USERNAME_LENGTH_MESSAGE;
 import static payments.duo.utils.Constants.VALID_USERNAME_PATTERN_MESSAGE;
 import static payments.duo.utils.Constants.VALID_USERNAME_REGEX_PATTERN;
@@ -22,13 +24,13 @@ import static payments.duo.utils.Constants.VALID_USERNAME_REGEX_PATTERN;
 public class UserCommand {
     Long userId;
     @UniqueUsername
-    @NotBlank
+    @NotBlank(message = VALID_NOT_BLANK_MESSAGE)
     @Size(min = 4, max = 16, message = VALID_USERNAME_LENGTH_MESSAGE)
     @Pattern(regexp = VALID_USERNAME_REGEX_PATTERN, message = VALID_USERNAME_PATTERN_MESSAGE)
     private String username;
     @UniqueEmail
-    @NotBlank
-    @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+    @NotBlank(message = VALID_NOT_BLANK_MESSAGE)
+    @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = VALID_MAIL_FORMAT_MESSAGE)
     private String email;
     private String firstName;
     private String lastName;

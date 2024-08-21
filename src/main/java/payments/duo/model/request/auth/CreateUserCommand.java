@@ -8,13 +8,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
+import static payments.duo.utils.Constants.VALID_NOT_BLANK_MESSAGE;
 import static payments.duo.utils.Constants.VALID_PASSWORD_LENGTH_MESSAGE;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class CreateUserCommand extends UserCommand {
-    @NotBlank
+    @NotBlank(message = VALID_NOT_BLANK_MESSAGE)
     @Size(min = 6, message = VALID_PASSWORD_LENGTH_MESSAGE)
     private String password;
 
