@@ -112,11 +112,10 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void getUnknownPaymentIsRejected() {
+    void getUnknownPaymentIsNotFound() {
         ResponseEntity<String> response = exchange(HttpMethod.GET, "/999", null, String.class);
 
-        // current behaviour: not found is mapped to 400 (should become 404)
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
