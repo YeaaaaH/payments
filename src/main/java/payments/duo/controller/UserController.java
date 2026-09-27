@@ -30,8 +30,8 @@ public class UserController {
     }
 
     @GetMapping
-    public UserDTO getUserFromAuth() {
-        User user = userService.getUserFromAuth();
+    public UserDTO getUserFromAuth(@AuthenticationPrincipal AuthenticatedUser currentUser) {
+        User user = userService.findUserById(currentUser.id());
         return UserFactory.toUserDTO(user);
     }
 

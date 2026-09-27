@@ -1,7 +1,5 @@
 package payments.duo.service.impl;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,10 +65,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    public User getUserFromAuth() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return findUserByUsername(authentication.getName());
-    }
     public User findUserByUsername(String username) {
         return userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND_MESSAGE_USERNAME, username)));
