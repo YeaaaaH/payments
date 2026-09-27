@@ -104,6 +104,22 @@ class IntegrationUserControllerTest extends AbstractIntegrationTest {
         assertEquals("other_user", userService.findUserById(other.getId()).getUsername());
     }
 
+    @Test
+    void getUserFromAuthWorksAfterUsernameChange() {
+        User user = registerUser("old_name");
+        HttpHeaders headers = authHeaders(user);
+        UserCommand rename = new UserCommand();
+        rename.setUsername("new_name");
+        restTemplate.exchange(userEndpoint + "/" + user.getId(), HttpMethod.PUT,
+                new HttpEntity<>(rename, headers), UserDTO.class);
+
+        ResponseEntity<UserDTO> response = restTemplate.exchange(userEndpoint, HttpMethod.GET,
+                new HttpEntity<>(headers), UserDTO.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("new_name", response.getBody().getUsername());
+    }
+
     private User registerUser(String username) {
         CreateUserCommand command = createCommandBase();
         command.setUsername(username);
