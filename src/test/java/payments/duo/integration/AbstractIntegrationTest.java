@@ -4,11 +4,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import payments.duo.model.auth.User;
+import payments.duo.security.jwt.JwtTokenProvider;
+import payments.duo.utils.UserFactory;
 
 /**
  * Base class for integration tests: one Postgres container shared by all test classes
@@ -42,8 +46,18 @@ public abstract class AbstractIntegrationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private JwtTokenProvider tokenProvider;
+
     @AfterEach
     void cleanDatabase() {
         jdbcTemplate.execute("TRUNCATE payments, user_roles, users RESTART IDENTITY CASCADE");
+    }
+
+    /** Headers with a valid Bearer token for the given (saved) user. */
+    protected HttpHeaders authHeaders(User user) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(tokenProvider.createToken(UserFactory.toJwtUser(user)));
+        return headers;
     }
 }

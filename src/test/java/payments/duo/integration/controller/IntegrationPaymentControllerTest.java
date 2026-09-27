@@ -9,8 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import payments.duo.integration.AbstractIntegrationTest;
 import payments.duo.model.Payment;
 import payments.duo.model.auth.User;
@@ -22,7 +20,6 @@ import payments.duo.model.response.PaymentReportResponse;
 import payments.duo.model.response.PaymentResponse;
 import payments.duo.repository.CategoryRepository;
 import payments.duo.repository.PaymentRepository;
-import payments.duo.security.jwt.JwtTokenProvider;
 import payments.duo.service.UserService;
 
 import java.math.BigDecimal;
@@ -48,9 +45,6 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     CategoryRepository categoryRepository;
-
-    @Autowired
-    JwtTokenProvider tokenProvider;
 
     private User user;
     private HttpHeaders headers;
@@ -149,6 +143,35 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void getPaymentOfAnotherUserIsNotFound() {
+        Long id = savePayment(registerUser("other"), "25.00", FOOD, Instant.parse("2026-09-01T10:00:00Z"));
+
+        ResponseEntity<String> response = exchange(HttpMethod.GET, "/" + id, null, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void updatePaymentOfAnotherUserIsNotFoundAndLeavesItUnchanged() {
+        Long id = savePayment(registerUser("other"), "25.00", FOOD, Instant.parse("2026-09-01T10:00:00Z"));
+
+        ResponseEntity<String> response = exchange(HttpMethod.PUT, "/" + id, updateCommand("1.00", TAXI), String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(new BigDecimal("25.00"), paymentRepository.findById(id).orElseThrow().getAmount());
+    }
+
+    @Test
+    void deletePaymentOfAnotherUserIsNotFoundAndKeepsIt() {
+        Long id = savePayment(registerUser("other"), "25.00", FOOD, Instant.parse("2026-09-01T10:00:00Z"));
+
+        ResponseEntity<String> response = exchange(HttpMethod.DELETE, "/" + id, null, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(paymentRepository.findById(id).isPresent());
+    }
+
+    @Test
     void deletePaymentRemovesIt() {
         Long id = savePayment("25.00", FOOD, Instant.parse("2026-09-01T10:00:00Z"));
 
@@ -177,8 +200,8 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         savePayment("10.00", FOOD, Instant.parse("2026-09-30T21:30:00Z"));
         savePayment("20.00", FOOD, Instant.parse("2026-09-30T20:30:00Z"));
 
-        List<PaymentResponse> september = getList("/list/monthly?userId=" + user.getId() + "&year=2026&month=9");
-        List<PaymentResponse> october = getList("/list/monthly?userId=" + user.getId() + "&year=2026&month=10");
+        List<PaymentResponse> september = getList("/list/monthly?year=2026&month=9");
+        List<PaymentResponse> october = getList("/list/monthly?year=2026&month=10");
 
         assertEquals(1, september.size());
         assertEquals(new BigDecimal("20.00"), september.get(0).getAmount());
@@ -193,19 +216,19 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         savePayment("20.00", FOOD, Instant.parse("2026-06-15T10:00:00Z"));
         savePayment("30.00", FOOD, Instant.parse("2026-12-31T22:30:00Z"));
 
-        List<PaymentResponse> year2026 = getList("/list/yearly?userId=" + user.getId() + "&year=2026");
+        List<PaymentResponse> year2026 = getList("/list/yearly?year=2026");
 
         assertEquals(List.of(new BigDecimal("10.00"), new BigDecimal("20.00")),
                 year2026.stream().map(PaymentResponse::getAmount).sorted().toList());
     }
 
     @Test
-    void listsContainOnlyPaymentsOfRequestedUser() {
+    void listsContainOnlyOwnPayments() {
         savePayment("10.00", FOOD, Instant.parse("2026-09-10T10:00:00Z"));
         User other = registerUser("other");
         savePayment(other, "99.00", FOOD, Instant.parse("2026-09-10T10:00:00Z"));
 
-        List<PaymentResponse> payments = getList("/list/monthly?userId=" + user.getId() + "&year=2026&month=9");
+        List<PaymentResponse> payments = getList("/list/monthly?year=2026&month=9");
 
         assertEquals(1, payments.size());
         assertEquals(new BigDecimal("10.00"), payments.get(0).getAmount());
@@ -218,7 +241,7 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         savePayment("7.00", TAXI, Instant.parse("2026-09-05T10:00:00Z"));
         savePayment("999.00", FOOD, Instant.parse("2026-10-05T10:00:00Z"));
 
-        Map<String, BigDecimal> report = getReport("/report/monthly?userId=" + user.getId() + "&year=2026&month=9");
+        Map<String, BigDecimal> report = getReport("/report/monthly?year=2026&month=9");
 
         assertEquals(2, report.size());
         assertEquals(0, new BigDecimal("30.50").compareTo(report.get("Food")));
@@ -231,7 +254,7 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         savePayment("15.00", FOOD, Instant.parse("2026-11-10T10:00:00Z"));
         savePayment("999.00", FOOD, Instant.parse("2025-06-10T10:00:00Z"));
 
-        Map<String, BigDecimal> report = getReport("/report/yearly?userId=" + user.getId() + "&year=2026");
+        Map<String, BigDecimal> report = getReport("/report/yearly?year=2026");
 
         assertEquals(1, report.size());
         assertEquals(0, new BigDecimal("25.00").compareTo(report.get("Food")));
@@ -245,21 +268,12 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         return userService.registration(command);
     }
 
-    private HttpHeaders authHeaders(User user) {
-        String token = tokenProvider.createToken(new UsernamePasswordAuthenticationToken(
-                user.getUsername(), null, List.of(new SimpleGrantedAuthority("CLIENT"))));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        return headers;
-    }
-
     private CreatePaymentCommand createCommand(String amount, long categoryId, Instant paidAt) {
         CreatePaymentCommand command = new CreatePaymentCommand();
         command.setAmount(new BigDecimal(amount));
         command.setCategoryId(categoryId);
         command.setTitle("Coffee");
         command.setDescription("note");
-        command.setUserId(user.getId());
         command.setPaidAt(paidAt);
         return command;
     }
@@ -269,7 +283,6 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         command.setAmount(new BigDecimal(amount));
         command.setCategoryId(categoryId);
         command.setTitle("Updated");
-        command.setUserId(user.getId());
         return command;
     }
 

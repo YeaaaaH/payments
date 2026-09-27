@@ -15,8 +15,8 @@ public class CreatePaymentCommand extends PaymentCommand {
     @NotNull
     private Instant paidAt;
 
-    public CreatePaymentCommand(BigDecimal amount, Long categoryId, String title, String description, Long userId, Instant paidAt) {
-        super(amount, categoryId, title, description, userId);
+    public CreatePaymentCommand(BigDecimal amount, Long categoryId, String title, String description, Instant paidAt) {
+        super(amount, categoryId, title, description);
         this.paidAt = paidAt;
     }
 }

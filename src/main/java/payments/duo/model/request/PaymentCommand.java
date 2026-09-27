@@ -25,14 +25,11 @@ public class PaymentCommand {
     private Long categoryId;
     private String title;
     private String description;
-    @NotNull
-    private Long userId;
 
-    public PaymentCommand(BigDecimal amount, Long categoryId, String description, String title, Long userId) {
+    public PaymentCommand(BigDecimal amount, Long categoryId, String title, String description) {
         this.amount = amount;
         this.categoryId = categoryId;
         this.title = title;
-        this.userId = userId;
         this.description = description;
     }
 }

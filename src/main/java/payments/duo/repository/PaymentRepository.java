@@ -8,12 +8,15 @@ import payments.duo.model.response.PaymentReportResponseParameters;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Periods are half-open ranges [from, to): the service computes the boundaries of a year/month
  * in the app time zone, so a payment at 00:30 local time lands in the right month.
  */
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
+
+    Optional<Payment> findByIdAndUserId(Long id, Long userId);
 
     @Query("select p from Payment p where p.user.id = :userId and p.paidAt >= :from and p.paidAt < :to")
     List<Payment> findAllByUserForPeriod(@Param("userId") Long userId,
