@@ -2,6 +2,8 @@ package payments.duo.model;
 
 import lombok.Data;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import payments.duo.model.auth.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Entity
 @Table(name = "payments")
@@ -27,7 +29,12 @@ public class Payment implements Serializable {
     private String title;
     private String description;
     private BigDecimal amount;
-    private LocalDate createdOn;
+    private Instant paidAt;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Instant createdAt;
+    @UpdateTimestamp
+    private Instant updatedAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="USER_ID")
     private User user;

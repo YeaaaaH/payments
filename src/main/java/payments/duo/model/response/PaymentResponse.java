@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
@@ -17,6 +18,6 @@ public class PaymentResponse {
     private String description;
     private BigDecimal amount;
     private String categoryName;
-    private LocalDate createdOn;
+    private Instant paidAt;
     private LocalDate updatedOn;
 }
