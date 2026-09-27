@@ -7,17 +7,17 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentResponse {
+    private Long id;
     private String title;
     private String description;
     private BigDecimal amount;
     private String categoryName;
     private Instant paidAt;
-    private LocalDate updatedOn;
+    private Instant updatedAt;
 }
