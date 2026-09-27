@@ -1,8 +1,16 @@
 # Payments API (duo)
 
 Personal budgeting REST API: record spending by category, get monthly/yearly reports.
-**Single-user app** (the owner only) that will be self-hosted on a VPS. The frontend lives in a
-separate repo (React, being rebuilt); this repo is backend only. Roadmap: `docs/ROADMAP.md`.
+**Multi-user app**: every user has their own username and password (auth will later move to
+Google OAuth). Self-hosted on a VPS. The frontend lives in a separate repo (React, being rebuilt);
+this repo is backend only. Roadmap: `docs/ROADMAP.md`.
+
+## Working rules (strict)
+1. **Never commit without explicit approval from the user.**
+2. **Never delete or rewrite existing Liquibase changesets** — schema changes go in a new changeset.
+3. **Keep it multi-user** — don't remove per-user accounts, signup or ownership checks.
+4. **Small steps** — one small change at a time, a short summary, then wait for the user.
+5. **Commit messages** — a short description of what changed, a few words (no body).
 
 ## Stack
 - Java 17, Spring Boot 2.5.4 (Web, Data JPA, Security, Validation), Gradle 7.2 wrapper

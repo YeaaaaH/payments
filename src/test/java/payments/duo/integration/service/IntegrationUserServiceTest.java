@@ -1,15 +1,8 @@
 package payments.duo.integration.service;
 
+import payments.duo.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
 import payments.duo.service.impl.UserServiceImpl;
@@ -19,28 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
-@Testcontainers
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class IntegrationUserServiceTest {
+class IntegrationUserServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     UserServiceImpl userService;
-
-    @Container
-    public static PostgreSQLContainer<?> pgContainer = new PostgreSQLContainer<>("postgres:13.3")
-            .withDatabaseName("duo")
-            .withUsername("user")
-            .withPassword("pass");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", pgContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", pgContainer::getUsername);
-        registry.add("spring.datasource.password", pgContainer::getPassword);
-        registry.add("spring.datasource.driver-class-name", pgContainer::getDriverClassName);
-    }
 
     @Test
     void findUserByIdTest() {
