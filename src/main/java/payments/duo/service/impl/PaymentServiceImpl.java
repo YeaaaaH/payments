@@ -65,8 +65,8 @@ public class PaymentServiceImpl implements PaymentService {
             Category category = categoryService.findCategoryById(command.getCategoryId());
             payment.setCategory(category);
         }
-//        payment.setUpdatedOn()
-        return setPaymentResponse(paymentRepository.save(payment));
+        // flush so @UpdateTimestamp is applied before the response is built
+        return setPaymentResponse(paymentRepository.saveAndFlush(payment));
     }
 
     public void deletePaymentById(Long id) {
@@ -114,12 +114,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     private PaymentResponse setPaymentResponse(Payment payment) {
         PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setId(payment.getId());
         paymentResponse.setTitle(payment.getTitle());
         paymentResponse.setDescription(payment.getDescription());
         paymentResponse.setAmount(payment.getAmount());
         paymentResponse.setCategoryName(payment.getCategory().getName());
         paymentResponse.setPaidAt(payment.getPaidAt());
-//        paymentResponse.setUpdatedOn(payment.getUpdatedOn());
+        paymentResponse.setUpdatedAt(payment.getUpdatedAt());
         return paymentResponse;
     }
 

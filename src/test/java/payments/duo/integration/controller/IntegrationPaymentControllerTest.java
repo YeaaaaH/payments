@@ -76,6 +76,7 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         assertEquals("Food", body.getCategoryName());
         assertEquals(Instant.parse("2026-09-01T10:00:00Z"), body.getPaidAt());
         Payment saved = paymentRepository.findAll().get(0);
+        assertEquals(saved.getId(), body.getId());
         assertEquals(user.getId(), saved.getUser().getId());
         assertNotNull(saved.getCreatedAt());
     }
@@ -107,6 +108,7 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         ResponseEntity<PaymentResponse> response = exchange(HttpMethod.GET, "/" + id, null, PaymentResponse.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(id, response.getBody().getId());
         assertEquals(new BigDecimal("25.00"), response.getBody().getAmount());
         assertEquals("Taxi", response.getBody().getCategoryName());
     }
@@ -121,6 +123,7 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
     @Test
     void updatePaymentChangesIt() {
         Long id = savePayment("25.00", FOOD, Instant.parse("2026-09-01T10:00:00Z"));
+        Instant updatedBefore = paymentRepository.findById(id).orElseThrow().getUpdatedAt();
 
         ResponseEntity<PaymentResponse> response = exchange(HttpMethod.PUT, "/" + id,
                 updateCommand("30.00", TAXI), PaymentResponse.class);
@@ -129,6 +132,7 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         assertEquals(new BigDecimal("30.00"), response.getBody().getAmount());
         assertEquals("Taxi", response.getBody().getCategoryName());
         assertEquals("Updated", response.getBody().getTitle());
+        assertTrue(response.getBody().getUpdatedAt().isAfter(updatedBefore));
         Payment saved = paymentRepository.findById(id).orElseThrow();
         assertEquals(new BigDecimal("30.00"), saved.getAmount());
         assertNotNull(saved.getUpdatedAt());
@@ -273,7 +277,7 @@ class IntegrationPaymentControllerTest extends AbstractIntegrationTest {
         return savePayment(user, amount, categoryId, paidAt);
     }
 
-    // PaymentResponse has no id yet, so fixtures are saved through the repository
+    // fixtures go through the repository to control paidAt and the owner exactly
     private Long savePayment(User owner, String amount, long categoryId, Instant paidAt) {
         Payment payment = new Payment();
         payment.setUser(owner);
