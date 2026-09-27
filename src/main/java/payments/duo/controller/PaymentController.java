@@ -50,7 +50,7 @@ public class PaymentController {
     }
 
     @PutMapping("{id}")
-    public PaymentResponse updatePayment(@RequestBody UpdatePaymentCommand command, @PathVariable Long id) {
+    public PaymentResponse updatePayment(@Valid @RequestBody UpdatePaymentCommand command, @PathVariable Long id) {
         return paymentService.updatePayment(command, id);
     }
 
