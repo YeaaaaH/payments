@@ -1,10 +1,9 @@
 package payments.duo.integration.controller;
 
+import payments.duo.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Import;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,12 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import payments.duo.integration.configs.IntegrationTestConfig;
 import payments.duo.model.Category;
 import payments.duo.model.request.auth.SignInRequest;
@@ -34,14 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static payments.duo.utils.Constants.TOKEN_NOT_FOUND;
 
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = IntegrationTestConfig.class
-)
-@Testcontainers
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class IntegrationCategoryControllerTest {
+@Import(IntegrationTestConfig.class)
+class IntegrationCategoryControllerTest extends AbstractIntegrationTest {
 
     private final String categoryEndpoint = "/api/v1/category";
 
@@ -52,24 +39,7 @@ class IntegrationCategoryControllerTest {
     CategoryService categoryService;
 
     @Autowired
-    TestRestTemplate restTemplate;
-
-    @Autowired
     JwtTokenProvider tokenProvider;
-
-    @Container
-    public static PostgreSQLContainer<?> pgContainer = new PostgreSQLContainer<>("postgres:13.3")
-            .withDatabaseName("duo")
-            .withUsername("user")
-            .withPassword("pass");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", pgContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", pgContainer::getUsername);
-        registry.add("spring.datasource.password", pgContainer::getPassword);
-        registry.add("spring.datasource.driver-class-name", pgContainer::getDriverClassName);
-    }
 
     @Test
     void findCategoryByIdTest() {
