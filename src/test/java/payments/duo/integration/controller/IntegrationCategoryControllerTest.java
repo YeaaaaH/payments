@@ -2,7 +2,6 @@ package payments.duo.integration.controller;
 
 import payments.duo.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Import;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import payments.duo.integration.configs.IntegrationTestConfig;
 import payments.duo.model.Category;
 import payments.duo.model.request.auth.SignInRequest;
 import payments.duo.model.request.auth.CreateUserCommand;
@@ -27,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static payments.duo.utils.Constants.TOKEN_NOT_FOUND;
 
-@Import(IntegrationTestConfig.class)
 class IntegrationCategoryControllerTest extends AbstractIntegrationTest {
 
     private final String categoryEndpoint = "/api/v1/category";
