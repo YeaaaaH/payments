@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +36,11 @@ public class CustomizedEntityExceptionHandler extends ResponseEntityExceptionHan
         }
         ExceptionResponse exceptionResponse = new ExceptionResponse(exceptions);
         return new ResponseEntity<>(exceptionResponse, status);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public final ResponseEntity<ExceptionResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(PaymentNotFoundException.class)

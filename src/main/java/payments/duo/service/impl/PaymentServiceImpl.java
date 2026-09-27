@@ -44,20 +44,17 @@ public class PaymentServiceImpl implements PaymentService {
         this.zone = zone;
     }
 
-    public PaymentResponse findPaymentById(Long id) {
-        Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException(String.format(PAYMENT_NOT_FOUND_MESSAGE, id)));
-        return setPaymentResponse(payment);
+    public PaymentResponse findPaymentById(Long userId, Long id) {
+        return setPaymentResponse(findOwnPayment(userId, id));
     }
 
-    public PaymentResponse savePayment(CreatePaymentCommand command) {
-        Payment payment = preparePaymentToSave(command);
+    public PaymentResponse savePayment(Long userId, CreatePaymentCommand command) {
+        Payment payment = preparePaymentToSave(userId, command);
         return setPaymentResponse(paymentRepository.save(payment));
     }
 
-    public PaymentResponse updatePayment(UpdatePaymentCommand command, Long id) {
-        Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException(String.format(PAYMENT_NOT_FOUND_MESSAGE, command.getId())));
+    public PaymentResponse updatePayment(Long userId, UpdatePaymentCommand command, Long id) {
+        Payment payment = findOwnPayment(userId, id);
         payment.setAmount(command.getAmount());
         payment.setDescription(command.getDescription());
         payment.setTitle(command.getTitle());
@@ -69,16 +66,20 @@ public class PaymentServiceImpl implements PaymentService {
         return setPaymentResponse(paymentRepository.saveAndFlush(payment));
     }
 
-    public void deletePaymentById(Long id) {
-        Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException(String.format(PAYMENT_NOT_FOUND_MESSAGE, id)));
-        paymentRepository.delete(payment);
+    public void deletePaymentById(Long userId, Long id) {
+        paymentRepository.delete(findOwnPayment(userId, id));
     }
 
-    public void saveAllPayments(List<CreatePaymentCommand> commandsList) {
+    public void saveAllPayments(Long userId, List<CreatePaymentCommand> commandsList) {
         List<Payment> paymentsList = new ArrayList<>();
-        commandsList.forEach(command -> paymentsList.add(preparePaymentToSave(command)));
+        commandsList.forEach(command -> paymentsList.add(preparePaymentToSave(userId, command)));
         paymentRepository.saveAll(paymentsList);
+    }
+
+    /** Another user's payment is treated as missing, so its existence is not revealed. */
+    private Payment findOwnPayment(Long userId, Long id) {
+        return paymentRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new PaymentNotFoundException(String.format(PAYMENT_NOT_FOUND_MESSAGE, id)));
     }
 
     public List<PaymentResponse> findAllByUserForYear(Long userId, int year) {
@@ -130,10 +131,10 @@ public class PaymentServiceImpl implements PaymentService {
         return new PaymentReportResponse(result);
     }
 
-    private Payment preparePaymentToSave(CreatePaymentCommand command) {
+    private Payment preparePaymentToSave(Long userId, CreatePaymentCommand command) {
         Payment payment = new Payment();
         Category category = categoryService.findCategoryById(command.getCategoryId());
-        User user = userService.findUserById(command.getUserId());
+        User user = userService.findUserById(userId);
         payment.setUser(user);
         payment.setAmount(command.getAmount());
         payment.setPaidAt(command.getPaidAt());

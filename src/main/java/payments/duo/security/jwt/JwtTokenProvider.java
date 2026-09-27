@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import payments.duo.exception.JwtTokenException;
+import payments.duo.security.AuthenticatedUser;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -22,17 +23,23 @@ import static payments.duo.utils.Constants.TOKEN_PREFIX;
 
 @Component
 public class JwtTokenProvider {
+    public static final String USER_ID_CLAIM = "userId";
+
     @Value("${jwt.token.secret}")
     private String secret;
     @Value("${jwt.token.expired}")
     private long expireTime;
 
-    public String createToken(Authentication authenticate) {
+    public String createToken(JwtUser user) {
         Algorithm algorithm = Algorithm.HMAC256(secret.getBytes());
+        List<String> roles = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
         return JWT.create()
-                .withSubject(authenticate.getName())
+                .withSubject(user.getUsername())
+                .withClaim(USER_ID_CLAIM, user.getUserId())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expireTime))
-                .withClaim("roles", getRoleNamesFromAuthorities(authenticate))
+                .withClaim("roles", roles)
                 .sign(algorithm);
     }
 
@@ -48,6 +55,14 @@ public class JwtTokenProvider {
         return authenticate.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
+    }
+
+    public AuthenticatedUser getAuthenticatedUser(DecodedJWT decodedJWT) {
+        Long userId = decodedJWT.getClaim(USER_ID_CLAIM).asLong();
+        if (userId == null) {
+            throw new JwtTokenException(TOKEN_DECLARATION_IS_WRONG);
+        }
+        return new AuthenticatedUser(userId, decodedJWT.getSubject());
     }
 
     public List<SimpleGrantedAuthority> getAuthoritiesFromToken(DecodedJWT decodedJWT) {

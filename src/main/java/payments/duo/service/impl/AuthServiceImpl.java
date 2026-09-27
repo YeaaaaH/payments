@@ -33,8 +33,8 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         try {
             Authentication authenticate = authenticationProvider.authenticate(usernamePasswordAuthenticationToken);
-            String token = tokenProvider.createToken(authenticate);
             JwtUser details = (JwtUser) authenticate.getPrincipal();
+            String token = tokenProvider.createToken(details);
             return new SingInResponse(token, details.getUserId(), tokenProvider.getRoleNamesFromAuthorities(authenticate));
         } catch (AuthenticationException authenticationException) {
             throw new BadCredentialsException("Invalid username or password");

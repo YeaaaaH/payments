@@ -13,8 +13,8 @@ public class UpdatePaymentCommand extends PaymentCommand {
 
     private Long id;
 
-    public UpdatePaymentCommand(BigDecimal amount, Long categoryId, String title, Long userId, Long id, String description) {
-        super(amount, categoryId, title, description, userId);
+    public UpdatePaymentCommand(BigDecimal amount, Long categoryId, String title, Long id, String description) {
+        super(amount, categoryId, title, description);
         this.id = id;
     }
 }

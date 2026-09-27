@@ -3,6 +3,7 @@ package payments.duo.controller;
 import io.swagger.annotations.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import payments.duo.model.request.CreatePaymentsListCommand;
 import payments.duo.model.request.UpdatePaymentCommand;
 import payments.duo.model.response.PaymentReportResponse;
 import payments.duo.model.response.PaymentResponse;
+import payments.duo.security.AuthenticatedUser;
 import payments.duo.service.PaymentService;
 
 import javax.validation.Valid;
@@ -34,49 +36,52 @@ public class PaymentController {
     }
 
     @GetMapping("{id}")
-    public PaymentResponse getPaymentById(@PathVariable Long id) {
-        return paymentService.findPaymentById(id);
+    public PaymentResponse getPaymentById(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long id) {
+        return paymentService.findPaymentById(user.id(), id);
     }
 
     @PostMapping
-    public PaymentResponse savePayment(@Valid @RequestBody CreatePaymentCommand command) {
-        return paymentService.savePayment(command);
+    public PaymentResponse savePayment(@AuthenticationPrincipal AuthenticatedUser user,
+                                       @Valid @RequestBody CreatePaymentCommand command) {
+        return paymentService.savePayment(user.id(), command);
     }
 
     @PostMapping("saveAll")
-    public ResponseEntity<String> saveAllPayments(@Valid @RequestBody CreatePaymentsListCommand command) {
-        paymentService.saveAllPayments(command.getPaymentCommands());
+    public ResponseEntity<String> saveAllPayments(@AuthenticationPrincipal AuthenticatedUser user,
+                                                  @Valid @RequestBody CreatePaymentsListCommand command) {
+        paymentService.saveAllPayments(user.id(), command.getPaymentCommands());
         return new ResponseEntity<>("Batch save processed successfully.", HttpStatus.OK);
     }
 
     @PutMapping("{id}")
-    public PaymentResponse updatePayment(@Valid @RequestBody UpdatePaymentCommand command, @PathVariable Long id) {
-        return paymentService.updatePayment(command, id);
+    public PaymentResponse updatePayment(@AuthenticationPrincipal AuthenticatedUser user,
+                                         @Valid @RequestBody UpdatePaymentCommand command, @PathVariable Long id) {
+        return paymentService.updatePayment(user.id(), command, id);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deletePaymentById(@PathVariable Long id) {
-        paymentService.deletePaymentById(id);
+    public ResponseEntity<String> deletePaymentById(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable Long id) {
+        paymentService.deletePaymentById(user.id(), id);
         return new ResponseEntity<>("Payment with id:" + id + " had been deleted", HttpStatus.OK);
     }
 
     @GetMapping("/list/yearly")
-    public List<PaymentResponse> findAllByUserForYear(@RequestParam Long userId, @RequestParam int year) {
-        return paymentService.findAllByUserForYear(userId, year);
+    public List<PaymentResponse> findAllByUserForYear(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam int year) {
+        return paymentService.findAllByUserForYear(user.id(), year);
     }
 
     @GetMapping("/list/monthly")
-    public List<PaymentResponse> findAllByUserForYearAndMonth(@RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
-        return paymentService.findAllByUserForYearAndMonth(userId, year, month);
+    public List<PaymentResponse> findAllByUserForYearAndMonth(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam int year, @RequestParam int month) {
+        return paymentService.findAllByUserForYearAndMonth(user.id(), year, month);
     }
 
     @GetMapping("/report/yearly")
-    public PaymentReportResponse calculateYearlyByUserAndCategory(@RequestParam Long userId, @RequestParam int year) {
-        return paymentService.calculateYearlyByUserAndCategory(userId, year);
+    public PaymentReportResponse calculateYearlyByUserAndCategory(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam int year) {
+        return paymentService.calculateYearlyByUserAndCategory(user.id(), year);
     }
 
     @GetMapping("/report/monthly")
-    public PaymentReportResponse calculateMonthlyByUserAndCategory(@RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
-        return paymentService.calculateMonthlyByUserAndCategory(userId, year, month);
+    public PaymentReportResponse calculateMonthlyByUserAndCategory(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam int year, @RequestParam int month) {
+        return paymentService.calculateMonthlyByUserAndCategory(user.id(), year, month);
     }
 }
