@@ -39,17 +39,17 @@ public class CustomizedEntityExceptionHandler extends ResponseEntityExceptionHan
 
     @ExceptionHandler(PaymentNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handlePaymentNotFoundException(PaymentNotFoundException ex) {
-        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handleCategoryNotFoundException(CategoryNotFoundException ex) {
-        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handleUserNotFoundException(UserNotFoundException ex) {
-        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.NOT_FOUND);
     }
 
     public static ExceptionResponse prepareExceptions(Exception exception) {
