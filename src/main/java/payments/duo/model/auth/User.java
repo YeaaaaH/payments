@@ -2,7 +2,6 @@ package payments.duo.model.auth;
 
 import lombok.Data;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,7 +30,8 @@ public class User implements Serializable {
     private String lastName;
     private LocalDate createdOn;
     private LocalDate updatedOn;
-    @ManyToMany(cascade = CascadeType.ALL)
+    // no cascade: roles are shared reference data, never created or deleted through a user
+    @ManyToMany
     @JoinTable(name = "user_roles",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "role_id")})

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
+import payments.duo.repository.RoleRepository;
+import payments.duo.repository.UserRepository;
 import payments.duo.service.impl.UserServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +18,25 @@ class IntegrationUserServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     UserServiceImpl userService;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    RoleRepository roleRepository;
+
+    @Test
+    void deletingUserKeepsSharedRole() {
+        CreateUserCommand command = createCommandBase();
+        command.setUsername("to_delete");
+        command.setEmail("to_delete@user.mail");
+        User user = userService.registration(command);
+
+        userRepository.deleteById(user.getId());
+
+        assertTrue(userRepository.findById(user.getId()).isEmpty());
+        assertNotNull(roleRepository.findByName("CLIENT"));
+    }
 
     @Test
     void findUserByIdTest() {
