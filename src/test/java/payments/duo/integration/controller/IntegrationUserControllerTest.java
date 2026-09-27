@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
@@ -65,6 +66,49 @@ class IntegrationUserControllerTest extends AbstractIntegrationTest {
         assertNotNull(userResponse);
         assertEquals(user.getEmail(), userResponse.getEmail());
         assertEquals(user.getUsername(), userResponse.getUsername());
+    }
+
+    @Test
+    void getOwnUserByIdTest() {
+        User user = registerUser("own_user");
+
+        ResponseEntity<UserDTO> response = restTemplate.exchange(userEndpoint + "/" + user.getId(),
+                HttpMethod.GET, new HttpEntity<>(authHeaders(user)), UserDTO.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(user.getUsername(), response.getBody().getUsername());
+    }
+
+    @Test
+    void getAnotherUserByIdIsNotFound() {
+        User user = registerUser("own_user");
+        User other = registerUser("other_user");
+
+        ResponseEntity<String> response = restTemplate.exchange(userEndpoint + "/" + other.getId(),
+                HttpMethod.GET, new HttpEntity<>(authHeaders(user)), String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void updateAnotherUserIsNotFoundAndLeavesItUnchanged() {
+        User user = registerUser("own_user");
+        User other = registerUser("other_user");
+        UserCommand userCommand = new UserCommand();
+        userCommand.setUsername("hijacked");
+
+        ResponseEntity<String> response = restTemplate.exchange(userEndpoint + "/" + other.getId(),
+                HttpMethod.PUT, new HttpEntity<>(userCommand, authHeaders(user)), String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("other_user", userService.findUserById(other.getId()).getUsername());
+    }
+
+    private User registerUser(String username) {
+        CreateUserCommand command = createCommandBase();
+        command.setUsername(username);
+        command.setEmail(username + "@user.mail");
+        return userService.registration(command);
     }
 
     private CreateUserCommand createCommandBase() {
