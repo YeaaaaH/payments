@@ -8,10 +8,8 @@ import payments.duo.model.response.PaymentResponse;
 import java.util.List;
 
 /**
- * Single-payment operations only see payments of {@code userId}; another user's payment is reported as not found.
- */
-/**
- * Operations act on the payments of {@code userId} only; another user's payment is reported as not found.
+ * Every method works only with payments of the given user.
+ * Another user's payment is treated as missing (PaymentNotFoundException).
  */
 public interface PaymentService {
     PaymentResponse findPaymentById(Long userId, Long id);
