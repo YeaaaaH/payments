@@ -15,9 +15,21 @@ this repo is backend only. Roadmap: `docs/ROADMAP.md`; open design questions (e.
    then +1 each commit — take the highest leading number in `git log` and add 1); the description is a
    few clear words about what changed. No body, no attribution trailers. Example: `30 - Load .env for local run`.
 
+## Task workflow (GitHub issues)
+Work starts from a GitHub issue written by the user (template `.github/ISSUE_TEMPLATE/task.md`:
+Goal, Acceptance criteria, Out of scope, Notes).
+1. The user says "take #N" -> read it with `gh issue view N --comments` and check it against the code.
+2. Analysis in chat: plan of small steps, open questions, risks. After the user approves, post the plan as
+   a comment on the issue (`gh issue comment N`). Never write to GitHub without the user's approval.
+3. Branch `feature/<N>-<short-name>` (or `fix/`, `task/`) from an up-to-date `master`.
+4. Implement step by step (working rules above); docs are updated in the same branch.
+5. PR description contains `Closes #N`, so merging closes the issue.
+Work without an issue (small chores the user asks for directly) uses a branch without the number.
+
 ## Git workflow
 - **One branch per task/feature**, created from an up-to-date `master` at the start of the task:
-  `feature/<short-kebab-name>`, `fix/<...>`, `task/<...>` (docs, config, CI, dependencies, other non-feature work).
+  `feature/<N>-<short-kebab-name>`, `fix/<...>`, `task/<...>` (docs, config, CI, dependencies, other
+  non-feature work); `<N>` is the issue number when there is one.
   Never commit to `master` directly. Commits still need the user's approval (rule 1).
 - **Preparing a pull request** (when the task is done):
   1. `./gradlew build` passes locally (compile + tests; needs Docker — if it can't run, say so).
@@ -27,8 +39,8 @@ this repo is backend only. Roadmap: `docs/ROADMAP.md`; open design questions (e.
      `README.md` (user-facing features, API, running) and `ARCHITECTURE.md` (technical design) describe
      the current state — update them in the same branch as any change they cover.
   5. Branch is up to date with `master` (ask before a rebase or force-push).
-  6. Draft the PR title and description (what and why, how it was tested, follow-ups) and show it to the
-     user; push and `gh pr create` only after approval.
+  6. Draft the PR title and description (what and why, how it was tested, follow-ups, `Closes #N` for the
+     issue) and show it to the user; push and `gh pr create` only after approval.
 - **CI** (`.github/workflows/ci.yml`) runs `./gradlew build` on pull requests to `master` and on pushes
   to `master`; merge only when it is green.
 
