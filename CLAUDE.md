@@ -11,17 +11,21 @@ this repo is backend only. Roadmap: `docs/ROADMAP.md`; open design questions (e.
 2. **Never delete or rewrite existing Liquibase changesets** — schema changes go in a new changeset.
 3. **Keep it multi-user** — don't remove per-user accounts, signup or ownership checks.
 4. **Small steps** — one small change at a time, a short summary, then wait for the user.
-5. **Commit messages** — a short description of what changed, a few words (no body).
+5. **Commit messages** — `<N> - <short description>`: `N` is a running commit number (first one `30`,
+   then +1 each commit — take the highest leading number in `git log` and add 1); the description is a
+   few clear words about what changed. No body, no attribution trailers. Example: `30 - Load .env for local run`.
 
 ## Git workflow
 - **One branch per task/feature**, created from an up-to-date `master` at the start of the task:
-  `feature/<short-kebab-name>`, `fix/<...>`, `chore/<...>` (config, CI, docs, dependencies).
+  `feature/<short-kebab-name>`, `fix/<...>`, `task/<...>` (docs, config, CI, dependencies, other non-feature work).
   Never commit to `master` directly. Commits still need the user's approval (rule 1).
 - **Preparing a pull request** (when the task is done):
   1. `./gradlew build` passes locally (compile + tests; needs Docker — if it can't run, say so).
   2. Review `git diff master...HEAD`: no secrets (`.env`, tokens), no debug leftovers, no unrelated changes.
   3. Schema changes are new changesets included in `changelog.xml`.
   4. New/renamed env vars are in `.env.example`, this file and `README.md`; docs match changed commands.
+     `README.md` (user-facing features, API, running) and `ARCHITECTURE.md` (technical design) describe
+     the current state — update them in the same branch as any change they cover.
   5. Branch is up to date with `master` (ask before a rebase or force-push).
   6. Draft the PR title and description (what and why, how it was tested, follow-ups) and show it to the
      user; push and `gh pr create` only after approval.
