@@ -10,14 +10,14 @@ services:
     environment:
       POSTGRES_PASSWORD: password
     ports:
-      - 5433:5432
+      - 5432:5432
   api:
     build: .
     container_name: api
     environment:
       DATABASE_URL: jdbc:postgresql://postgres:5432/postgres
-      USERNAME: postgres
-      PASSWORD: password
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
       SECRET: secret
       EXPIRE_TIME: 600000
     ports:

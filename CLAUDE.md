@@ -27,10 +27,10 @@ code compatible with Boot 2.5 (`javax.*`, `WebSecurityConfigurerAdapter`).
 - Compile only (fast check, no Docker): `./gradlew compileJava compileTestJava`
 - Tests: `./gradlew test` — **requires Docker running** (Testcontainers starts `postgres:16-alpine`)
 - Single test class: `./gradlew test --tests "payments.duo.integration.service.IntegrationUserServiceTest"`
-- Local stack: `./gradlew build && docker compose up --build` (API on :8080, Postgres on :5433)
+- Local stack: `./gradlew build && docker compose up --build` (API on :8080, Postgres on :5432)
 - Swagger UI: http://localhost:8080/swagger-ui.html
 
-Required env vars to run: `DATABASE_URL`, `USERNAME`, `PASSWORD`, `SECRET` (JWT), `EXPIRE_TIME` (ms).
+Required env vars to run: `DATABASE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SECRET` (JWT), `EXPIRE_TIME` (ms).
 Optional: `APP_TIMEZONE` (default `Europe/Kyiv`) — zone for month/year boundaries of payment lists and reports.
 
 ## Layout (`src/main/java/payments/duo/`)
