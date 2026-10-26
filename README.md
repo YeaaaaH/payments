@@ -89,7 +89,9 @@ Variables for the upcoming Telegram/Google sign-in are already listed in `.env.e
 - Tests: `./gradlew test` (integration tests with Testcontainers; Docker required).
 - Fast compile check without Docker: `./gradlew compileJava compileTestJava`.
 - CI runs `./gradlew build` on every pull request to `master`.
-- One branch per task (`feature/…`, `fix/…`, `task/…`), merged through a pull request.
+- Tasks are GitHub issues (template: *Task* — goal, acceptance criteria, out of scope, notes).
+- One branch per task (`feature/<issue>-…`, `fix/…`, `task/…`), merged through a pull request that
+  closes the issue (`Closes #N`).
 
 ## Roadmap
 
