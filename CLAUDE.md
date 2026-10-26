@@ -19,8 +19,10 @@ this repo is backend only. Roadmap: `docs/ROADMAP.md`; open design questions (e.
 Work starts from a GitHub issue written by the user (template `.github/ISSUE_TEMPLATE/task.md`:
 Goal, Acceptance criteria, Out of scope, Notes).
 1. The user says "take #N" -> read it with `gh issue view N --comments` and check it against the code.
-2. Analysis in chat: plan of small steps, open questions, risks. After the user approves, post the plan as
-   a comment on the issue (`gh issue comment N`). Never write to GitHub without the user's approval.
+2. Analysis: run the `issue-analyst` subagent (`.claude/agents/issue-analyst.md`, read-only) on the issue,
+   check its result and present it in chat: plan of small steps, open questions, risks. After the user
+   approves, post the plan as a comment on the issue (`gh issue comment N`). Never write to GitHub
+   without the user's approval.
 3. Branch `feature/<N>-<short-name>` (or `fix/`, `task/`) from an up-to-date `master`.
 4. Implement step by step (working rules above); docs are updated in the same branch.
 5. PR description contains `Closes #N`, so merging closes the issue.

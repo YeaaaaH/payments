@@ -38,7 +38,9 @@ out/
 .vscode/
 
 ### Claude ###
-.claude/
+# .claude/ is shared (settings, agents); personal overrides stay local
+.claude/settings.local.json
+.claude/worktrees/
 docs/
 
 ### Local env ###
