@@ -13,6 +13,21 @@ this repo is backend only. Roadmap: `docs/ROADMAP.md`; open design questions (e.
 4. **Small steps** — one small change at a time, a short summary, then wait for the user.
 5. **Commit messages** — a short description of what changed, a few words (no body).
 
+## Git workflow
+- **One branch per task/feature**, created from an up-to-date `master` at the start of the task:
+  `feature/<short-kebab-name>`, `fix/<...>`, `chore/<...>` (config, CI, docs, dependencies).
+  Never commit to `master` directly. Commits still need the user's approval (rule 1).
+- **Preparing a pull request** (when the task is done):
+  1. `./gradlew build` passes locally (compile + tests; needs Docker — if it can't run, say so).
+  2. Review `git diff master...HEAD`: no secrets (`.env`, tokens), no debug leftovers, no unrelated changes.
+  3. Schema changes are new changesets included in `changelog.xml`.
+  4. New/renamed env vars are in `.env.example`, this file and `README.md`; docs match changed commands.
+  5. Branch is up to date with `master` (ask before a rebase or force-push).
+  6. Draft the PR title and description (what and why, how it was tested, follow-ups) and show it to the
+     user; push and `gh pr create` only after approval.
+- **CI** (`.github/workflows/ci.yml`) runs `./gradlew build` on pull requests to `master` and on pushes
+  to `master`; merge only when it is green.
+
 ## Stack
 - Java 17, Spring Boot 2.5.4 (Web, Data JPA, Security, Validation), Gradle 7.2 wrapper
 - PostgreSQL + Liquibase migrations, Lombok
