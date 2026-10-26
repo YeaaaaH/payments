@@ -1,19 +1,20 @@
-version: '3.8'
+name: payments
 
 services:
   postgres:
-    image: postgres
-    container_name: postgres
+    # same version as the Testcontainers DB in tests
+    image: postgres:16-alpine
+    container_name: payments-postgres
     restart: always
     volumes:
-      - project_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: password
     ports:
       - 5432:5432
   api:
     build: .
-    container_name: api
+    container_name: payments-api
     environment:
       DATABASE_URL: jdbc:postgresql://postgres:5432/postgres
       DB_USERNAME: postgres
@@ -26,4 +27,4 @@ services:
       - postgres
 
 volumes:
-  project_data:
+  postgres_data:
