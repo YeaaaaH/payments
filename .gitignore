@@ -40,3 +40,6 @@ out/
 ### Claude ###
 .claude/
 docs/
+
+### Local env ###
+.env

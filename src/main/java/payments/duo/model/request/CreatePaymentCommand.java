@@ -6,17 +6,17 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class CreatePaymentCommand extends PaymentCommand {
     @NotNull
-    private LocalDate createdOn;
+    private Instant paidAt;
 
-    public CreatePaymentCommand(BigDecimal amount, Long categoryId, String title, String description, Long userId, LocalDate createdOn) {
-        super(amount, categoryId, title, description, userId);
-        this.createdOn = createdOn;
+    public CreatePaymentCommand(BigDecimal amount, Long categoryId, String title, String description, Instant paidAt) {
+        super(amount, categoryId, title, description);
+        this.paidAt = paidAt;
     }
 }

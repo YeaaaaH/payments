@@ -1,65 +1,28 @@
 package payments.duo.integration.controller;
 
+import payments.duo.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import payments.duo.model.request.auth.SignInRequest;
 import payments.duo.model.auth.User;
 import payments.duo.model.request.auth.CreateUserCommand;
 import payments.duo.model.request.auth.UserCommand;
 import payments.duo.model.response.UserDTO;
-import payments.duo.security.jwt.JwtTokenProvider;
 import payments.duo.service.UserService;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-@ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class IntegrationUserControllerTest {
+class IntegrationUserControllerTest extends AbstractIntegrationTest {
 
     private final String userEndpoint = "/api/v1/user";
 
     @Autowired
     UserService userService;
-
-    @Autowired
-    TestRestTemplate restTemplate;
-
-    @Autowired
-    JwtTokenProvider tokenProvider;
-
-    @Container
-    public static PostgreSQLContainer<?> pgContainer = new PostgreSQLContainer<>("postgres:13.3")
-            .withDatabaseName("duo")
-            .withUsername("user")
-            .withPassword("pass");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", pgContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", pgContainer::getUsername);
-        registry.add("spring.datasource.password", pgContainer::getPassword);
-        registry.add("spring.datasource.driver-class-name", pgContainer::getDriverClassName);
-    }
 
     @Test
     void updateUserTest() {
@@ -72,13 +35,7 @@ class IntegrationUserControllerTest {
         userCommand.setEmail("test@userUPDATE.mail");
         userCommand.setUsername("usernameUPDATE");
 
-        SignInRequest signInRequest = new SignInRequest(command.getUsername(), command.getPassword());
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                signInRequest.getUsername(), signInRequest.getPassword(), List.of(new SimpleGrantedAuthority("CLIENT"))
-        );
-        String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        HttpHeaders headers = authHeaders(user);
         ResponseEntity<UserDTO> response = restTemplate.exchange(
                 userEndpoint + "/" + user.getId(),
                 HttpMethod.PUT,
@@ -98,13 +55,7 @@ class IntegrationUserControllerTest {
         command.setEmail("auth@user.mail");
         User user = userService.registration(command);
 
-        SignInRequest signInRequest = new SignInRequest(command.getUsername(), command.getPassword());
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                signInRequest.getUsername(), signInRequest.getPassword(), List.of(new SimpleGrantedAuthority("CLIENT"))
-        );
-        String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        HttpHeaders headers = authHeaders(user);
         ResponseEntity<UserDTO> response = restTemplate.exchange(
                 userEndpoint,
                 HttpMethod.GET,
@@ -115,6 +66,65 @@ class IntegrationUserControllerTest {
         assertNotNull(userResponse);
         assertEquals(user.getEmail(), userResponse.getEmail());
         assertEquals(user.getUsername(), userResponse.getUsername());
+    }
+
+    @Test
+    void getOwnUserByIdTest() {
+        User user = registerUser("own_user");
+
+        ResponseEntity<UserDTO> response = restTemplate.exchange(userEndpoint + "/" + user.getId(),
+                HttpMethod.GET, new HttpEntity<>(authHeaders(user)), UserDTO.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(user.getUsername(), response.getBody().getUsername());
+    }
+
+    @Test
+    void getAnotherUserByIdIsNotFound() {
+        User user = registerUser("own_user");
+        User other = registerUser("other_user");
+
+        ResponseEntity<String> response = restTemplate.exchange(userEndpoint + "/" + other.getId(),
+                HttpMethod.GET, new HttpEntity<>(authHeaders(user)), String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void updateAnotherUserIsNotFoundAndLeavesItUnchanged() {
+        User user = registerUser("own_user");
+        User other = registerUser("other_user");
+        UserCommand userCommand = new UserCommand();
+        userCommand.setUsername("hijacked");
+
+        ResponseEntity<String> response = restTemplate.exchange(userEndpoint + "/" + other.getId(),
+                HttpMethod.PUT, new HttpEntity<>(userCommand, authHeaders(user)), String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("other_user", userService.findUserById(other.getId()).getUsername());
+    }
+
+    @Test
+    void getUserFromAuthWorksAfterUsernameChange() {
+        User user = registerUser("old_name");
+        HttpHeaders headers = authHeaders(user);
+        UserCommand rename = new UserCommand();
+        rename.setUsername("new_name");
+        restTemplate.exchange(userEndpoint + "/" + user.getId(), HttpMethod.PUT,
+                new HttpEntity<>(rename, headers), UserDTO.class);
+
+        ResponseEntity<UserDTO> response = restTemplate.exchange(userEndpoint, HttpMethod.GET,
+                new HttpEntity<>(headers), UserDTO.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("new_name", response.getBody().getUsername());
+    }
+
+    private User registerUser(String username) {
+        CreateUserCommand command = createCommandBase();
+        command.setUsername(username);
+        command.setEmail(username + "@user.mail");
+        return userService.registration(command);
     }
 
     private CreateUserCommand createCommandBase() {

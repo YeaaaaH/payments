@@ -1,8 +1,32 @@
 # Payments API (duo)
 
 Personal budgeting REST API: record spending by category, get monthly/yearly reports.
-**Single-user app** (the owner only) that will be self-hosted on a VPS. The frontend lives in a
-separate repo (React, being rebuilt); this repo is backend only. Roadmap: `docs/ROADMAP.md`.
+**Multi-user app**: every user has their own username and password (auth will later move to
+Google OAuth). Self-hosted on a VPS. The frontend lives in a separate repo (React, being rebuilt);
+this repo is backend only. Roadmap: `docs/ROADMAP.md`; open design questions (e.g. roles):
+`docs/PLAN.md`. `docs/` is git-ignored (local only).
+
+## Working rules (strict)
+1. **Never commit without explicit approval from the user.**
+2. **Never delete or rewrite existing Liquibase changesets** — schema changes go in a new changeset.
+3. **Keep it multi-user** — don't remove per-user accounts, signup or ownership checks.
+4. **Small steps** — one small change at a time, a short summary, then wait for the user.
+5. **Commit messages** — a short description of what changed, a few words (no body).
+
+## Git workflow
+- **One branch per task/feature**, created from an up-to-date `master` at the start of the task:
+  `feature/<short-kebab-name>`, `fix/<...>`, `chore/<...>` (config, CI, docs, dependencies).
+  Never commit to `master` directly. Commits still need the user's approval (rule 1).
+- **Preparing a pull request** (when the task is done):
+  1. `./gradlew build` passes locally (compile + tests; needs Docker — if it can't run, say so).
+  2. Review `git diff master...HEAD`: no secrets (`.env`, tokens), no debug leftovers, no unrelated changes.
+  3. Schema changes are new changesets included in `changelog.xml`.
+  4. New/renamed env vars are in `.env.example`, this file and `README.md`; docs match changed commands.
+  5. Branch is up to date with `master` (ask before a rebase or force-push).
+  6. Draft the PR title and description (what and why, how it was tested, follow-ups) and show it to the
+     user; push and `gh pr create` only after approval.
+- **CI** (`.github/workflows/ci.yml`) runs `./gradlew build` on pull requests to `master` and on pushes
+  to `master`; merge only when it is green.
 
 ## Stack
 - Java 17, Spring Boot 2.5.4 (Web, Data JPA, Security, Validation), Gradle 7.2 wrapper
@@ -16,12 +40,13 @@ code compatible with Boot 2.5 (`javax.*`, `WebSecurityConfigurerAdapter`).
 ## Commands
 - Build: `./gradlew build`
 - Compile only (fast check, no Docker): `./gradlew compileJava compileTestJava`
-- Tests: `./gradlew test` — **requires Docker running** (Testcontainers starts `postgres:13.3`)
+- Tests: `./gradlew test` — **requires Docker running** (Testcontainers starts `postgres:16-alpine`)
 - Single test class: `./gradlew test --tests "payments.duo.integration.service.IntegrationUserServiceTest"`
-- Local stack: `./gradlew build && docker compose up --build` (API on :8080, Postgres on :5433)
+- Local stack: `./gradlew build && docker compose up --build` (API on :8080, Postgres on :5432)
 - Swagger UI: http://localhost:8080/swagger-ui.html
 
-Required env vars to run: `DATABASE_URL`, `USERNAME`, `PASSWORD`, `SECRET` (JWT), `EXPIRE_TIME` (ms).
+Required env vars to run: `DATABASE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SECRET` (JWT), `EXPIRE_TIME` (ms).
+Optional: `APP_TIMEZONE` (default `Europe/Kyiv`) — zone for month/year boundaries of payment lists and reports.
 
 ## Layout (`src/main/java/payments/duo/`)
 - `controller/` — REST endpoints under `/api/v1/**` (authenticated) and `/api/auth/**` (public)
@@ -29,7 +54,8 @@ Required env vars to run: `DATABASE_URL`, `USERNAME`, `PASSWORD`, `SECRET` (JWT)
 - `repository/` — Spring Data JPA repositories
 - `model/` — JPA entities (`Payment`, `Category`, `auth/User`, `auth/Role`);
   `model/request/` — incoming `*Command` / `*Request` objects; `model/response/` — `*Response` / `*DTO`
-- `security/` — `SecurityConfig`, `JwtAuthorizationFilter`, `JwtTokenProvider`
+- `security/` — `SecurityConfig`, `JwtAuthorizationFilter`, `JwtTokenProvider`, `AuthenticatedUser`
+  (request principal built from the JWT: `userId` claim + username)
 - `exception/` — custom exceptions + `CustomizedEntityExceptionHandler` (`@RestControllerAdvice`)
 - `utils/` — `Constants` (messages), `UserFactory` (entity → DTO/JwtUser mapping), validators
 - `src/main/resources/db/changelog/` — Liquibase changelog; `changeSet/NNN-description.xml`
@@ -39,7 +65,12 @@ Required env vars to run: `DATABASE_URL`, `USERNAME`, `PASSWORD`, `SECRET` (JWT)
 - Never return JPA entities from controllers — map to a response DTO
 - Request objects are `*Command` classes with Bean Validation annotations; controllers use `@Valid`
 - Error/validation messages go in `utils/Constants`
-- Money is `BigDecimal`; payment dates are `LocalDate`
+- Money is `BigDecimal`, DB `NUMERIC(12,2)`; requests are validated with `@Digits(integer = 10, fraction = 2)`
+- Payment times are `Instant` (DB `TIMESTAMP WITH TIME ZONE`): `paidAt` is entered by the user,
+  `createdAt`/`updatedAt` are audit columns set by Hibernate. Month/year periods are half-open
+  `[from, to)` ranges computed in `app.timezone`
+- **Current user**: take it from `@AuthenticationPrincipal AuthenticatedUser` — never from a request
+  param or body. Another user's payment/profile is treated as missing → 404
 
 ## Database migrations
 - **Never edit a changeset that has already been applied** — add a new `NNN-*.xml` file and
@@ -49,4 +80,6 @@ Required env vars to run: `DATABASE_URL`, `USERNAME`, `PASSWORD`, `SECRET` (JWT)
 ## Tests
 - Integration tests in `src/test/java/payments/duo/integration/`, profile `test`
   (`application-test.properties`), DB from a Testcontainers Postgres via `@DynamicPropertySource`
-- Tests share a DB container per class — use unique usernames/emails per test
+- Extend `AbstractIntegrationTest`: one Postgres container shared by all test classes; `payments`,
+  `user_roles`, `users` are truncated after each test (categories/roles seed data is kept);
+  `authHeaders(User)` gives a valid Bearer token for a saved user

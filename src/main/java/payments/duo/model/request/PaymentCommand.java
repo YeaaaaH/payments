@@ -4,10 +4,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
+import static payments.duo.utils.Constants.VALID_PAYMENT_AMOUNT_DIGITS_MESSAGE;
 import static payments.duo.utils.Constants.VALID_PAYMENT_AMOUNT_MESSAGE;
 
 @Getter
@@ -17,19 +19,17 @@ public class PaymentCommand {
 
     @NotNull
     @Positive(message = VALID_PAYMENT_AMOUNT_MESSAGE)
+    @Digits(integer = 10, fraction = 2, message = VALID_PAYMENT_AMOUNT_DIGITS_MESSAGE)
     private BigDecimal amount;
     @NotNull
     private Long categoryId;
     private String title;
     private String description;
-    @NotNull
-    private Long userId;
 
-    public PaymentCommand(BigDecimal amount, Long categoryId, String description, String title, Long userId) {
+    public PaymentCommand(BigDecimal amount, Long categoryId, String title, String description) {
         this.amount = amount;
         this.categoryId = categoryId;
         this.title = title;
-        this.userId = userId;
         this.description = description;
     }
 }

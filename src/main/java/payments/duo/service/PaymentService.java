@@ -7,12 +7,16 @@ import payments.duo.model.response.PaymentResponse;
 
 import java.util.List;
 
+/**
+ * Every method works only with payments of the given user.
+ * Another user's payment is treated as missing (PaymentNotFoundException).
+ */
 public interface PaymentService {
-    PaymentResponse findPaymentById(Long id);
-    PaymentResponse savePayment(CreatePaymentCommand command);
-    PaymentResponse updatePayment(UpdatePaymentCommand command, Long id);
-    void deletePaymentById(Long id);
-    void saveAllPayments(List<CreatePaymentCommand> commandsList);
+    PaymentResponse findPaymentById(Long userId, Long id);
+    PaymentResponse savePayment(Long userId, CreatePaymentCommand command);
+    PaymentResponse updatePayment(Long userId, UpdatePaymentCommand command, Long id);
+    void deletePaymentById(Long userId, Long id);
+    void saveAllPayments(Long userId, List<CreatePaymentCommand> commandsList);
     List<PaymentResponse> findAllByUserForYear(Long userId, int year);
     List<PaymentResponse> findAllByUserForYearAndMonth(Long userId, int year, int month);
     PaymentReportResponse calculateYearlyByUserAndCategory(Long userId, int year);

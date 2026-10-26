@@ -11,9 +11,9 @@ To run this project, you will need following environment variables
 
 `DATABASE_URL` - db connection url
 
-`USERNAME` - db username
+`DB_USERNAME` - db username
 
-`PASSWORD` - db pass
+`DB_PASSWORD` - db pass
 
 `SECRET` - secret for jwt token
 

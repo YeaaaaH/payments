@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,19 +38,24 @@ public class CustomizedEntityExceptionHandler extends ResponseEntityExceptionHan
         return new ResponseEntity<>(exceptionResponse, status);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public final ResponseEntity<ExceptionResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(PaymentNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handlePaymentNotFoundException(PaymentNotFoundException ex) {
-        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handleCategoryNotFoundException(CategoryNotFoundException ex) {
-        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handleUserNotFoundException(UserNotFoundException ex) {
-        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(prepareExceptions(ex), HttpStatus.NOT_FOUND);
     }
 
     public static ExceptionResponse prepareExceptions(Exception exception) {
